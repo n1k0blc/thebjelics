@@ -47,8 +47,9 @@ Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie co
   </div>
 </div>
  <div class="activity">
-            <h2 class="schedule-title activity-title">AKTIVITÄTEN</h2>
+            <h2 class="activity-title">AKTIVITÄTEN</h2>
       </div>
+</div>
       <div class="activity-text">
         <p>
           Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut 
@@ -61,7 +62,81 @@ Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie co
           luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
         </p>
       </div>
+
+      <div class="map-legend">
+        <button class="legend-item" data-category="hochzeit">Hochzeit</button>
+        <button class="legend-item" data-category="straende">Strände</button>
+        <button class="legend-item" data-category="restaurants">Restaurants</button>
+        <button class="legend-item" data-category="beachclubs">Beach Clubs</button>
+        <button class="legend-item" data-category="aktivitaeten">Aktivitäten</button>
+      </div>
+      <div class="map-container">
+        <img src="map_koh_samui.png" alt="Karte von Koh Samui" class="map-image">
+
+        <!-- Beispiel-Pin 1 -->
+        <div class="map-pin-wrapper hochzeit" style="top: 69%; left: 10%;">
+          <div class="map-pin" style="background-color: white;"></div>
+          <div class="tooltip">
+            <a href="https://www.baanasan.com" target="_blank">Villa Baan Asan</a>
+          </div>
+        </div>
+
+        <!-- Beispiel-Pin Strände -->
+        <div class="map-pin-wrapper straende" style="top: 55%; left: 20%;">
+          <div class="map-pin" style="background-color: yellow;"></div>
+          <div class="tooltip">
+            <strong>Taling Ngam Beach</strong><br>
+            <a href="https://goo.gl/maps/xyz123" target="_blank">Google Maps</a>
+          </div>
+        </div>
+
+        <!-- Beispiel-Pin Restaurants -->
+        <div class="map-pin-wrapper restaurants" style="top: 50%; left: 40%;">
+          <div class="map-pin" style="background-color: red;"></div>
+          <div class="tooltip">
+            <strong>The Jungle Club</strong><br>
+            <a href="https://goo.gl/maps/abc456" target="_blank">Google Maps</a>
+          </div>
+        </div>
+
+        <!-- Beispiel-Pin Beach Clubs -->
+        <div class="map-pin-wrapper beachclubs" style="top: 60%; left: 60%;">
+          <div class="map-pin" style="background-color: purple;"></div>
+          <div class="tooltip">
+            <strong>Nikki Beach Club</strong><br>
+            <a href="https://goo.gl/maps/def789" target="_blank">Google Maps</a>
+          </div>
+        </div>
+
+        <!-- Beispiel-Pin Aktivitäten -->
+        <div class="map-pin-wrapper aktivitaeten" style="top: 65%; left: 80%;">
+          <div class="map-pin" style="background-color: blue;"></div>
+          <div class="tooltip">
+            <strong>Elephant Sanctuary</strong><br>
+            <a href="https://goo.gl/maps/ghi012" target="_blank">Google Maps</a>
+          </div>
+        </div>
+      </div>
 </div>
     </section>
+</section>
+  <script>
+    const legendButtons = document.querySelectorAll('.legend-item');
+    const allPins = document.querySelectorAll('.map-pin-wrapper');
+
+    legendButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const selectedCategory = button.dataset.category;
+
+        allPins.forEach(pin => {
+          if (pin.classList.contains(selectedCategory)) {
+            pin.style.display = 'block';
+          } else {
+            pin.style.display = 'none';
+          }
+        });
+      });
+    });
+  </script>
   </body>
 </html>

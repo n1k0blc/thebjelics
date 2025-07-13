@@ -578,6 +578,114 @@ body.content-light {
   cursor: pointer;
 }
 
+.map-container {
+  position: relative;
+  max-width: 80%;
+  margin: 4rem auto;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.map-image {
+  width: 100%;
+  display: block;
+  border-radius: 8px;
+}
+
+.map-pin {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: blue;
+  border: 3px solid white;
+  border-radius: 50%;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.map-pin-wrapper:hover .tooltip {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.map-pin-wrapper {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.tooltip {
+  position: absolute;
+  top: -70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  color: black;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: auto;
+  transition: opacity 0.3s ease;
+  z-index: 3;
+}
+
+.tooltip a {
+  color: black;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+.map-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 2rem auto 1rem auto;
+  max-width: 80%;
+}
+
+.legend-item {
+  padding: 0.6rem 1.5rem;
+  border: none;
+  color: white;
+  font-family: 'Lora', serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.05rem;
+  text-transform: uppercase;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.legend-item:hover {
+  transform: scale(1.05);
+}
+
+/* Farben für Kategorien */
+.legend-item[data-category="hochzeit"] {
+  background-color: white;
+  color: black;
+}
+
+.legend-item[data-category="straende"] {
+  background-color: #FFD700; /* Gelb */
+}
+
+.legend-item[data-category="restaurants"] {
+  background-color: #DC143C; /* Rot */
+}
+
+.legend-item[data-category="beachclubs"] {
+  background-color: #800080; /* Lila */
+}
+
+.legend-item[data-category="aktivitaeten"] {
+  background-color: #1E90FF; /* Blau */
+}
+
 /* Responsive Anpassungen */
 @media (max-width: 600px) {
   .name-nadja {
@@ -646,6 +754,10 @@ body.content-light {
   margin-top: 8rem;
 }
 .activity-title {
+  font-size: 3rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.05rem;
   margin-bottom: 1rem;
 }
 
@@ -696,6 +808,10 @@ body.content-light {
       padding: 1rem;
   }
 }
+
+
+
+
 
 
 

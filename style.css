@@ -579,40 +579,91 @@ body.content-light {
 }
 
 .map-container {
-  position: relative;
-  max-width: 80%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  max-width: 90%;
   margin: 4rem auto;
-  border-radius: 8px;
-  overflow: hidden;
+  gap: 2rem;
+  position: relative;
 }
 
 .map-image {
-  width: 100%;
+  width: 70%;
+  height: 70%;
   display: block;
   border-radius: 8px;
 }
 
 .map-pin {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  background-color: blue;
-  border: 3px solid white;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
+  background-color: white; /* Standardfarbe, wird von Kategorieklassen überschrieben */
+  border: 2px solid black;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
   cursor: pointer;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-}
-
-.map-pin-wrapper:hover .tooltip {
-  opacity: 1;
-  pointer-events: auto;
 }
 
 .map-pin-wrapper {
   position: absolute;
   transform: translate(-50%, -50%);
   z-index: 2;
+}
+
+.map-pin-wrapper.hochzeit .map-pin {
+  background-color: white;
+}
+
+.map-pin-wrapper.straende .map-pin {
+  background-color: white; /* Gelb */
+}
+
+.map-pin-wrapper.restaurants .map-pin {
+  background-color: white; /* Rot */
+}
+
+.map-pin-wrapper.beachclubs .map-pin {
+  background-color: white; /* Lila */
+}
+
+.map-pin-wrapper.aktivitaeten .map-pin {
+  background-color: white; /* Blau */
+}
+
+.map-pin-wrapper:hover .tooltip {
+  opacity: 1;
+  pointer-events: auto;
+}
+.pin-villa-baan-asan {
+  top: 69%;
+  left: 7%;
+}
+
+.pin-taling-ngam {
+  top: 55%;
+  left: 20%;
+}
+
+.pin-jungle-club {
+  top: 50%;
+  left: 40%;
+}
+
+.pin-nikki-beach {
+  top: 60%;
+  left: 60%;
+}
+
+.pin-elephant-sanctuary {
+  top: 65%;
+  left: 80%;
+}
+
+.pin-barbaguette-bophut{
+  top: 33%;
+  left: 45%;
 }
 
 .tooltip {
@@ -640,11 +691,10 @@ body.content-light {
 }
 .map-legend {
   display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
   gap: 1rem;
-  margin: 2rem auto 1rem auto;
-  max-width: 80%;
+  margin: 0;
 }
 
 .legend-item {
@@ -658,6 +708,8 @@ body.content-light {
   border-radius: 4px;
   cursor: pointer;
   transition: transform 0.2s ease;
+  width: 100%;
+  text-align: center;
 }
 
 .legend-item:hover {
@@ -666,24 +718,23 @@ body.content-light {
 
 /* Farben für Kategorien */
 .legend-item[data-category="hochzeit"] {
-  background-color: white;
-  color: black;
+  background-color: black;
 }
 
 .legend-item[data-category="straende"] {
-  background-color: #FFD700; /* Gelb */
+  background-color: black; /* Gelb */
 }
 
 .legend-item[data-category="restaurants"] {
-  background-color: #DC143C; /* Rot */
+  background-color: black; /* Rot */
 }
 
 .legend-item[data-category="beachclubs"] {
-  background-color: #800080; /* Lila */
+  background-color: black; /* Lila */
 }
 
 .legend-item[data-category="aktivitaeten"] {
-  background-color: #1E90FF; /* Blau */
+  background-color: black; /* Blau */
 }
 
 /* Responsive Anpassungen */
@@ -816,3 +867,30 @@ body.content-light {
 
 
 
+
+
+
+
+.google-map-embed {
+  max-width: 1200px;
+  margin: 4rem auto;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.google-map-embed iframe {
+  width: 100%;
+  height: 800px;
+  border: 0;
+}
+
+#google-map {
+  width: 100%;
+  max-width: 1200px;
+  height: 800px;
+  margin: 4rem auto;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #ccc;
+}

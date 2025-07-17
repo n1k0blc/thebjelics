@@ -62,114 +62,12 @@ Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie co
           luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
         </p>
       </div>
-
-      <div class="map-container">
-        <img src="map_koh_samui.png" alt="Karte von Koh Samui" class="map-image">
-
-        <div class="map-legend">
-          <button class="legend-item" data-category="hochzeit">Hochzeit</button>
-          <button class="legend-item" data-category="straende">Strände</button>
-          <button class="legend-item" data-category="restaurants">Restaurants</button>
-          <button class="legend-item" data-category="beachclubs">Beach Clubs</button>
-          <button class="legend-item" data-category="aktivitaeten">Aktivitäten</button>
-        </div>
-
-        <!-- Hochzeit -->
-        <div class="map-pin-wrapper hochzeit pin-villa-baan-asan">
-          <div class="map-pin"></div>
-          <div class="tooltip">
-            <a href="https://www.baanasan.com" target="_blank">Villa Baan Asan</a>
-          </div>
-        </div>
-
-        <!-- Strände -->
-        <div class="map-pin-wrapper straende pin-taling-ngam">
-          <div class="map-pin"></div>
-          <div class="tooltip">
-            <strong>Taling Ngam Beach</strong><br>
-            <a href="https://goo.gl/maps/xyz123" target="_blank">Google Maps</a>
-          </div>
-        </div>
-
-        <!-- Restaurants -->
-        <div class="map-pin-wrapper restaurants pin-jungle-club">
-          <div class="map-pin"></div>
-          <div class="tooltip">
-            <strong>The Jungle Club</strong><br>
-            <a href="https://goo.gl/maps/abc456" target="_blank">Google Maps</a>
-          </div>
-        </div>
-
-        <div class="map-pin-wrapper restaurants pin-barbaguette-bophut">
-          <div class="map-pin"></div>
-          <div class="tooltip">
-            <a href="https://www.baanasan.com" target="_blank">Bar Baguette Bophut</a>
-          </div>
-        </div>
-
-        <!-- Beach Clubs -->
-        <div class="map-pin-wrapper beachclubs pin-nikki-beach">
-          <div class="map-pin"></div>
-          <div class="tooltip">
-            <strong>Nikki Beach Club</strong><br>
-            <a href="https://goo.gl/maps/def789" target="_blank">Google Maps</a>
-          </div>
-        </div>
-
-        <!-- Aktivitäten -->
-        <div class="map-pin-wrapper aktivitaeten pin-elephant-sanctuary">
-          <div class="map-pin"></div>
-          <div class="tooltip">
-            <strong>Elephant Sanctuary</strong><br>
-            <a href="https://goo.gl/maps/ghi012" target="_blank">Google Maps</a>
-          </div>
-        </div>
-      </div>
-</div>
-    </section>
 </section>
-  <script>
-    const legendButtons = document.querySelectorAll('.legend-item');
-    const allPins = document.querySelectorAll('.map-pin-wrapper');
-
-    legendButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const selectedCategory = button.dataset.category;
-
-        allPins.forEach(pin => {
-          if (pin.classList.contains(selectedCategory)) {
-            pin.style.display = 'block';
-          } else {
-            pin.style.display = 'none';
-          }
-        });
-      });
-    });
-  </script>
   <div class="google-map-embed">
     <iframe 
       src="https://www.google.com/maps/d/u/1/embed?mid=17MRSLLJl7mC9BWPVsTbeHnevCthQnoU&ehbc=2E312F">
     </iframe>
   </div>
-  <div id="google-map" style="height: 500px; width: 100%; margin-top: 2rem;"></div>
-  <script>
-    function initMap() {
-      const villaBaanAsan = { lat: 9.448580, lng: 99.933900 };
 
-      const map = new google.maps.Map(document.getElementById("google-map"), {
-        zoom: 11,
-        center: villaBaanAsan,
-      });
-
-      const marker = new google.maps.Marker({
-        position: villaBaanAsan,
-        map: map,
-        title: "Villa Baan Asan"
-      });
-    }
-  </script>
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDyHpFniiq7FPZqVCPGWCC_uK1sKKZHb-s&callback=initMap">
-  </script>
   </body>
 </html>

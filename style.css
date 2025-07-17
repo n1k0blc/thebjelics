@@ -20,6 +20,13 @@ body {
   align-items: center; */
   overflow-x: hidden;
 }
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+}
 
 body.content-light {
   background-color: #f7f6f4;
@@ -175,7 +182,9 @@ body.content-light {
   left: -250px;
   width: 250px;
   height: 100vh;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   transition: left 0.3s ease;
   z-index: 99;
 }
@@ -205,6 +214,9 @@ body.content-light {
 
 .menu a:hover {
   background: rgba(255, 255, 255, 0.1);
+}
+body.content-light .menu a:hover {
+  background: rgba(0, 0, 0, 0.05);
 }
 
 /* Sektionen Styling */
@@ -478,6 +490,60 @@ body.content-light {
   line-height: 1.6;
 }
 
+#FAQ {
+  background-color: #f7f6f4;
+  color: #111;
+  padding: 6rem 2rem;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Lora', serif;
+}
+
+.FAQ-title {
+  font-size: 3rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.05rem;
+  margin-bottom: 2rem;
+}
+
+.FAQ-section .faq-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4.5rem;
+  margin-top: 2rem;
+  max-width: 1200px;
+}
+
+.FAQ-section .faq-box {
+  border: 1px solid #000;
+  padding: 1rem;
+  border-radius: 4px;
+  color: #111;
+  text-align: left;
+}
+
+.faq-box h2 {
+  text-align: center;
+}
+
+.faq-box p {
+  text-align: justify;
+}
+
+#rsvp {
+  background-color: #f7f6f4;
+  color: #111;
+  padding: 6rem 2rem;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Lora', serif;
+}
+
 .travel-hero {
   position: relative;
   width: 100%;
@@ -578,163 +644,17 @@ body.content-light {
   cursor: pointer;
 }
 
-.map-container {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  max-width: 90%;
+
+.google-map-embed {
+  max-width: 1200px;
   margin: 4rem auto;
-  gap: 2rem;
-  position: relative;
+  overflow: hidden;
 }
 
-.map-image {
-  width: 70%;
-  height: 70%;
-  display: block;
-  border-radius: 8px;
-}
-
-.map-pin {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background-color: white; /* Standardfarbe, wird von Kategorieklassen überschrieben */
-  border: 2px solid black;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-}
-
-.map-pin-wrapper {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-}
-
-.map-pin-wrapper.hochzeit .map-pin {
-  background-color: white;
-}
-
-.map-pin-wrapper.straende .map-pin {
-  background-color: white; /* Gelb */
-}
-
-.map-pin-wrapper.restaurants .map-pin {
-  background-color: white; /* Rot */
-}
-
-.map-pin-wrapper.beachclubs .map-pin {
-  background-color: white; /* Lila */
-}
-
-.map-pin-wrapper.aktivitaeten .map-pin {
-  background-color: white; /* Blau */
-}
-
-.map-pin-wrapper:hover .tooltip {
-  opacity: 1;
-  pointer-events: auto;
-}
-.pin-villa-baan-asan {
-  top: 69%;
-  left: 7%;
-}
-
-.pin-taling-ngam {
-  top: 55%;
-  left: 20%;
-}
-
-.pin-jungle-club {
-  top: 50%;
-  left: 40%;
-}
-
-.pin-nikki-beach {
-  top: 60%;
-  left: 60%;
-}
-
-.pin-elephant-sanctuary {
-  top: 65%;
-  left: 80%;
-}
-
-.pin-barbaguette-bophut{
-  top: 33%;
-  left: 45%;
-}
-
-.tooltip {
-  position: absolute;
-  top: -70px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: white;
-  color: black;
-  padding: 8px 10px;
-  font-size: 0.85rem;
-  border-radius: 4px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: auto;
-  transition: opacity 0.3s ease;
-  z-index: 3;
-}
-
-.tooltip a {
-  color: black;
-  text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: bold;
-}
-.map-legend {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 1rem;
-  margin: 0;
-}
-
-.legend-item {
-  padding: 0.6rem 1.5rem;
-  border: none;
-  color: white;
-  font-family: 'Lora', serif;
-  font-size: 0.9rem;
-  letter-spacing: 0.05rem;
-  text-transform: uppercase;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  width: 100%;
-  text-align: center;
-}
-
-.legend-item:hover {
-  transform: scale(1.05);
-}
-
-/* Farben für Kategorien */
-.legend-item[data-category="hochzeit"] {
-  background-color: black;
-}
-
-.legend-item[data-category="straende"] {
-  background-color: black; /* Gelb */
-}
-
-.legend-item[data-category="restaurants"] {
-  background-color: black; /* Rot */
-}
-
-.legend-item[data-category="beachclubs"] {
-  background-color: black; /* Lila */
-}
-
-.legend-item[data-category="aktivitaeten"] {
-  background-color: black; /* Blau */
+.google-map-embed iframe {
+  width: 85%;
+  height: 800px;
+  border: 0;
 }
 
 /* Responsive Anpassungen */
@@ -861,36 +781,89 @@ body.content-light {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-.google-map-embed {
-  max-width: 1200px;
-  margin: 4rem auto;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  overflow: hidden;
+/* RSVP form styles */
+.rsvp-title {
+  font-size: 2.2rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
 }
 
-.google-map-embed iframe {
-  width: 100%;
-  height: 800px;
-  border: 0;
+.rsvp-subtitle {
+  font-size: 1rem;
+  font-weight: 300;
+  margin-bottom: 2rem;
+  max-width: 700px;
+  text-align: center;
 }
 
-#google-map {
+.rsvp-form {
+  background-color: white;
+  color: #000;
+  padding: 3rem 2rem;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 700px;
   width: 100%;
-  max-width: 1200px;
-  height: 800px;
-  margin: 4rem auto;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 2px solid #ccc;
+  font-family: 'Lora', serif;
+  text-align: left;
+}
+
+.rsvp-form label {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #333;
+}
+
+.rsvp-form em {
+  font-style: italic;
+  font-size: 0.75rem;
+  color: gray;
+}
+
+.rsvp-form input[type="text"],
+.rsvp-form input[type="email"] {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1.2rem;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  font-size: 1rem;
+  background-color: transparent;
+}
+
+.rsvp-form .name-fields {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.rsvp-form .name-fields input {
+  flex: 1;
+}
+
+.rsvp-form .radio-group {
+  display: flex;
+  gap: 2rem;
+  margin: 0.5rem 0 1.5rem;
+}
+
+.rsvp-form button {
+  display: inline-block;
+  background-color: black;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  padding: 0.8rem 2rem;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-family: 'Lora', serif;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.rsvp-form button:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
 }

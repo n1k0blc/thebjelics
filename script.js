@@ -35,14 +35,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const scrollY = window.scrollY;
         const locationSection = document.getElementById('location');
         const dresscodeSection = document.getElementById('dresscode');
+        const faqSection = document.getElementById('FAQ');
+        const body = document.body;
 
         const inBrightSection = (section) => {
+            if (!section) return false;
             const top = section.offsetTop;
             const height = section.offsetHeight;
             return scrollY >= top && scrollY < top + height;
         };
 
-        const isBright = inBrightSection(locationSection) || inBrightSection(dresscodeSection);
+        const isBright = inBrightSection(locationSection) || inBrightSection(dresscodeSection) || inBrightSection(faqSection);
 
         bars.forEach(bar => {
             bar.style.backgroundColor = isBright ? 'black' : 'white';
@@ -51,6 +54,12 @@ document.addEventListener('DOMContentLoaded', () => {
         menuLinks.forEach(link => {
             link.style.color = isBright ? 'black' : 'white';
         });
+
+        if (isBright) {
+            body.classList.add('content-light');
+        } else {
+            body.classList.remove('content-light');
+        }
     }
 
     // Initial und beim Scrollen ausführen

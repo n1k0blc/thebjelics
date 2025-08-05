@@ -867,3 +867,88 @@ body.content-light .menu a:hover {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   cursor: pointer;
 }
+
+.rsvp-form .form-step {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: none; /* Hide all steps by default */
+}
+
+.rsvp-form .form-step.visible {
+  display: block; /* Show the visible steps */
+}
+
+.rsvp-form .next-btn {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.rsvp-form .form-message {
+  display: none; /* Hidden by default */
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.rsvp-form .form-message.success {
+  display: block;
+  background-color: #e6f4ea;
+  color: #3c763d;
+  border: 1px solid #c3e6cb;
+}
+
+.rsvp-form .form-message.error {
+  display: block;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.rsvp-form .guest-entry {
+  position: relative;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 1rem 1rem 0 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.rsvp-form .remove-guest-btn {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #aaa;
+}
+
+.rsvp-form .add-guest-btn {
+  background: none;
+  border: 1px dashed #ccc;
+  color: #555;
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.rsvp-form .add-guest-btn:hover {
+  background-color: #f5f5f5;
+  color: #000;
+}
+
+.rsvp-form input[type="date"] {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1.2rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: 'Lora', serif;
+}

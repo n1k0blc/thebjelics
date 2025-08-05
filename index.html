@@ -165,40 +165,56 @@
     We can’t wait to celebrate our special day with you, and your presence means the world to us! Please let us know if you will be able to join in the joy and festivities by <strong>April 1st, 2026.</strong>
   </p>
   <form class="rsvp-form" id="rsvp-form">
-    <label for="first-name">Name <em>(required)</em></label>
-    <div class="name-fields">
-      <input type="text" id="first-name" name="first-name" placeholder="First Name" required>
-      <input type="text" id="last-name" name="last-name" placeholder="Last Name" required>
-    </div>
+    <!-- Container for success/error messages -->
+    <div id="form-message" class="form-message"></div>
+    <!-- Step 1: Primary Guest Identification -->
+    <fieldset id="step-1" class="form-step visible">
+      <label for="first-name">Your Name <em>(required)</em></label>
+      <div class="name-fields">
+        <input type="text" id="first-name" name="first-name" placeholder="First Name" required>
+        <input type="text" id="last-name" name="last-name" placeholder="Last Name" required>
+      </div>
+      <button type="button" class="next-btn">Next</button>
+    </fieldset>
 
-    <label for="email">Email <em>(required)</em></label>
-    <input type="email" id="email" name="email" required>
+    <!-- Step 2: Guest Information -->
+    <fieldset id="step-2" class="form-step">
+      <label>Your Guests</label>
+      <div id="guest-list">
+        <!-- Dynamic guest fields will be added here -->
+      </div>
+      <button type="button" id="add-guest-btn" class="add-guest-btn">+ Add Guest</button>
+      <button type="button" class="next-btn">Next</button>
+    </fieldset>
 
-    <label>Will you be attending? <em>(required)</em></label>
-    <div class="radio-group">
-      <label><input type="radio" name="attending" value="yes" required> Yes</label>
-      <label><input type="radio" name="attending" value="no"> No</label>
-    </div>
+    <!-- Step 3: Final Details -->
+    <fieldset id="step-3" class="form-step">
+      <label for="email">Email <em>(required)</em></label>
+      <input type="email" id="email" name="email" required>
 
-    <label>Will you be bringing a guest? <em>(required)</em></label>
-    <div class="radio-group">
-      <label><input type="radio" name="bringing-guest" value="yes" required> Yes</label>
-      <label><input type="radio" name="bringing-guest" value="no"> No</label>
-    </div>
+      <label>Will you be attending? <em>(required)</em></label>
+      <div class="radio-group">
+        <label><input type="radio" name="attending" value="yes" required> Yes</label>
+        <label><input type="radio" name="attending" value="no"> No</label>
+      </div>
 
-    <label for="guest-name">Guest Name</label>
-    <div class="name-fields">
-      <input type="text" id="guest-first-name" name="guest-first-name" placeholder="First Name">
-      <input type="text" id="guest-last-name" name="guest-last-name" placeholder="Last Name">
-    </div>
+      <label for="food-restrictions">Any food restrictions?</label>
+      <input type="text" id="food-restrictions" name="food-restrictions">
 
-    <label for="food-restrictions">Any food restrictions?</label>
-    <input type="text" id="food-restrictions" name="food-restrictions">
-    
-    <label for="song">Which Song would you like to hear at the party?</label>
-    <input type="text" id="song" name="song">
+      <label for="song">Which song would you like to hear at the party?</label>
+      <input type="text" id="song" name="song">
 
-    <button type="submit" id="submit-button">SEND</button>
+      <label for="accommodation">Where will you be staying?</label>
+      <input type="text" id="accommodation" name="accommodation">
+
+      <label for="arrival-date">Date of Arrival</label>
+      <input type="date" id="arrival-date" name="arrival-date">
+
+      <label for="comment">Comments</label>
+      <input type="text" id="comment" name="comment">
+
+      <button type="submit" id="submit-button">SEND</button>
+    </fieldset>
   </form>
 </section>
 

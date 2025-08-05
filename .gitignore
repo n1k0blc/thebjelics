@@ -1,0 +1,12 @@
+# Dependencies
+/node_modules
+
+# Environment variables
+.env
+
+# Google Cloud credentials & other configs
+# Ignore all .json files...
+*.json
+# ...except for package management files.
+!package.json
+!package-lock.json

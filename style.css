@@ -884,6 +884,15 @@ body.content-light .menu a:hover {
   width: 100%;
 }
 
+.rsvp-form .error-message {
+  color: #a94442; /* A standard error red */
+  font-size: 0.8rem;
+  display: block;
+  height: 1.2rem; /* Reserve space to prevent layout shifts */
+  margin-top: -1rem; /* Adjust position to be closer to the input */
+  margin-bottom: 0.5rem;
+}
+
 .rsvp-form .form-message {
   display: none; /* Hidden by default */
   padding: 1rem;

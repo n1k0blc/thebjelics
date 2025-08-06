@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const locationSection = document.getElementById('location');
         const dresscodeSection = document.getElementById('dresscode');
         const faqSection = document.getElementById('FAQ');
+        const rsvpSection = document.getElementById('rsvp');
         const body = document.body;
 
         const inBrightSection = (section) => {
@@ -45,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return scrollY >= top && scrollY < top + height;
         };
 
-        const isBright = inBrightSection(locationSection) || inBrightSection(dresscodeSection) || inBrightSection(faqSection);
+        const isBright = inBrightSection(locationSection) || inBrightSection(dresscodeSection) || inBrightSection(faqSection)  || inBrightSection(rsvpSection);
 
         bars.forEach(bar => {
             bar.style.backgroundColor = isBright ? 'black' : 'white';
@@ -71,18 +72,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const steps = Array.from(rsvpForm.querySelectorAll('.form-step'));
     const nextBtns = rsvpForm.querySelectorAll('.next-btn');
 
-    // --- Mock Guest Database ---
-    // In a real application, this would come from a server.
-    const couples = [
-        { p1: { firstName: "Max", lastName: "Mustermann" }, p2: { firstName: "Erika", lastName: "Mustermann" } },
-        { p1: { firstName: "John", lastName: "Doe" }, p2: { firstName: "Jane", lastName: "Doe" } },
-        { p1: { firstName: "David", lastName: "Witt" }, p2: { firstName: "Isabel", lastName: "Witt" } }
-    ];
-
-    function normalizeName(firstName, lastName) {
-        return `${firstName.trim().toLowerCase()} ${lastName.trim().toLowerCase()}`;
+    // --- Validation Helpers ---
+    function validateName(name) {
+        // Allows letters (including international), spaces, hyphens, and apostrophes.
+        const re = /^[a-zA-Z\u00C0-\u017F\s'-]+$/;
+        return re.test(String(name));
     }
-
+    function validateEmail(email) {
+        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    }
     // --- Guest Management ---
     let guestCount = 0;
     let maxAllowedGuests = 0; // This will be set dynamically
@@ -122,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Step Navigation ---
     nextBtns.forEach((button, index) => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', async () => {
             const currentStepElement = button.closest('.form-step');
             const nextStepElement = currentStepElement.nextElementSibling;
 
@@ -136,26 +135,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Logic for Step 1 -> Step 2 (checking for known guests)
             if (index === 0) {
-                const inputFirstName = document.getElementById('first-name').value;
-                const inputLastName = document.getElementById('last-name').value;
-                const inputFullName = normalizeName(inputFirstName, inputLastName);
+                const firstNameInput = document.getElementById('first-name');
+                const lastNameInput = document.getElementById('last-name');
+                const nameError = document.getElementById('name-error');
+
+                // Perform validation
+                if (!firstNameInput.value.trim() || !lastNameInput.value.trim()) {
+                    nameError.textContent = 'First and last name are required.';
+                    return;
+                }
+                if (!validateName(firstNameInput.value) || !validateName(lastNameInput.value)) {
+                    nameError.textContent = 'Names can only contain letters, spaces, and hyphens.';
+                    return;
+                }
+                nameError.textContent = ''; // Clear error on success
 
                 // Clear any previously added guests before checking again
                 guestListContainer.innerHTML = '';
                 guestCount = 0;
 
-                const foundCouple = couples.find(c => 
-                    normalizeName(c.p1.firstName, c.p1.lastName) === inputFullName || 
-                    normalizeName(c.p2.firstName, c.p2.lastName) === inputFullName
-                );
-
-                if (foundCouple) {
-                    // For known couples, pre-fill their partner and allow one more guest.
-                    maxAllowedGuests = 2;
-                    const partner = normalizeName(foundCouple.p1.firstName, foundCouple.p1.lastName) === inputFullName ? foundCouple.p2 : foundCouple.p1;
-                    createGuestEntry(partner.firstName, partner.lastName);
-                } else {
-                    // For other guests, allow them to add one guest manually.
+                try {
+                    const response = await fetch(`http://localhost:3000/api/partner?firstName=${encodeURIComponent(firstNameInput.value)}&lastName=${encodeURIComponent(lastNameInput.value)}`);
+                    
+                    if (response.ok) {
+                        const partner = await response.json();
+                        // For known couples, pre-fill their partner and allow one more guest.
+                        maxAllowedGuests = 2;
+                        createGuestEntry(partner.firstName, partner.lastName);
+                    } else {
+                        // For other guests, allow them to add one guest manually.
+                        maxAllowedGuests = 1;
+                    }
+                } catch (error) {
+                    console.error('Error checking for partner:', error);
+                    // Default behavior if API call fails
                     maxAllowedGuests = 1;
                 }
             }
@@ -175,6 +188,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         event.preventDefault();
 
+        // --- Final Validation ---
+        const emailInput = document.getElementById('email');
+        const emailError = document.getElementById('email-error');
+        const isAttending = rsvpForm.querySelector('input[name="attending"]:checked');
+
+        const isEmailValid = validateEmail(emailInput.value);
+
+        if (!isEmailValid) {
+            emailError.textContent = 'Please enter a valid email address.';
+        } else {
+            emailError.textContent = '';
+        }
+
+        if (!isAttending || !isEmailValid) {
+            // Display a general message if any final validation fails
+            formMessage.textContent = 'Please correct the errors before submitting.';
+            formMessage.className = 'form-message error';
+            return;
+        }
         // Collect data from all steps
         const firstName = document.getElementById('first-name').value;
         const lastName = document.getElementById('last-name').value;
@@ -202,11 +234,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Disable button and clear previous messages
         submitButton.disabled = true;
         submitButton.textContent = 'SENDING...';
-        formMessage.style.display = 'none';
+        formMessage.className = 'form-message'; // Reset the message
 
         try {
             // The backend endpoint URL
-            const endpoint = 'http://localhost:5000/api/rsvp';
+            const endpoint = 'http://localhost:3000/api/rsvp';
 
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -216,25 +248,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const responseData = await response.json();
 
-            if (response.ok) {
-                formMessage.textContent = responseData.message;
-                formMessage.className = 'form-message success';
-                
-                // Hide the form fields and submit button after success
-                steps.forEach(step => step.style.display = 'none');
-                submitButton.style.display = 'none';
-            } else {
-                formMessage.textContent = responseData.message;
-                formMessage.className = 'form-message error';
+            if (!response.ok) {
+                // Use the server's message, or a default for other errors
+                throw new Error(responseData.message || `Server responded with status: ${response.status}`);
+            }
+
+            // --- Success Path ---
+            formMessage.textContent = responseData.message;
+            formMessage.classList.add('success');
+            steps.forEach(step => step.style.display = 'none');
+            submitButton.style.display = 'none';
+        } catch (error) {
+            // --- Error Path ---
+            console.error('Submission Error:', error.message); // Check the browser console for this message!
+            formMessage.textContent = error.message;
+            formMessage.classList.add('error');
+        } finally {
+            // This runs after success or error to re-enable the button if it's still visible.
+            if (submitButton.style.display !== 'none') {
                 submitButton.disabled = false;
                 submitButton.textContent = 'SEND';
             }
-        } catch (error) {
-            console.error('Error:', error);
-            formMessage.textContent = 'A network error occurred. Please check your connection and try again.';
-            formMessage.className = 'form-message error';
-            submitButton.disabled = false;
-            submitButton.textContent = 'SEND';
         }
     });
 });

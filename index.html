@@ -18,6 +18,7 @@
         <nav class="menu">
             <ul>
                 <li><a href="#home" class="scroll-link">Home</a></li>
+                <li><a href="#backup" class="scroll-link">Backup</a></li>
                 <li><a href="#welcome-dinner" class="scroll-link">Welcome Dinner</a></li>
                 <li><a href="#event" class="scroll-link">Event</a></li>
                 <li><a href="#location" class="scroll-link">Location</a></li>
@@ -30,6 +31,10 @@
 
     <!-- Hauptseite als Sektion -->
     <section id="home" class="content-section">
+        <img src="logo.png" alt="Nadja & Niko Wedding Logo" class="home-logo">
+    </section>
+
+    <section id="backup" class="content-section">
         <div class="countdown">
             <div><span id="days">0</span><div>Tage</div></div>
             <div><span id="hours">00</span><div>Stunden</div></div>
@@ -97,7 +102,6 @@
                 <p>
                   VILLA<br>
                     BAAN ASAN
-                  </a>
                 </p>
               </div>
         
@@ -175,7 +179,9 @@
         <input type="text" id="last-name" name="last-name" placeholder="Last Name" required>
       </div>
       <span class="error-message" id="name-error"></span>
-      <button type="button" class="next-btn">Next</button>
+      <div class="next-btn-wrapper">
+        <button type="button" class="next-btn">Next</button>
+      </div>
     </fieldset>
 
     <!-- Step 2: Guest Information -->
@@ -185,7 +191,9 @@
         <!-- Dynamic guest fields will be added here -->
       </div>
       <button type="button" id="add-guest-btn" class="add-guest-btn">+ Add Guest</button>
-      <button type="button" class="next-btn">Next</button>
+      <div class="next-btn-wrapper">
+        <button type="button" class="next-btn">Next</button>
+      </div>
     </fieldset>
 
     <!-- Step 3: Final Details -->
@@ -215,7 +223,9 @@
       <label for="comment">Comments</label>
       <input type="text" id="comment" name="comment">
 
-      <button type="submit" id="submit-button">SEND</button>
+      <div class="submit-wrapper">
+        <button type="submit" id="submit-button">SEND</button>
+      </div>
     </fieldset>
   </form>
 </section>

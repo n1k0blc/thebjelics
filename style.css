@@ -175,6 +175,10 @@ body.content-light {
   transform: rotate(-45deg);
   top: 0.9rem;
 }
+.hamburger-btn.active .bar {
+  /* Override scroll-based color when menu is open */
+  background-color: black !important;
+}
 
 .menu {
   position: fixed;
@@ -182,41 +186,56 @@ body.content-light {
   left: -250px;
   width: 250px;
   height: 100vh;
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: left 0.3s ease;
+  background: white;
+  transition: top 0.5s ease;
   z-index: 99;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: -50vh;
+  left: 0;
+  width: 100%;
+  height: 50vh;
 }
 
 .menu.active {
-  left: 0;
+  top: 0;
 }
 
 .menu ul {
   list-style: none;
-  padding: 3rem 1rem;
+  padding: 0 2rem;
   margin: 0;
+  width: 100%;
+  max-width: 1200px;
+  text-align: right;
 }
 
 .menu li {
-  margin: 1rem 0;
+  margin: 0.5rem 0;
 }
 
 .menu a {
   color: white;
   text-decoration: none;
-  font-size: 1.6rem;
-  font-weight: 300;
-  display: block;
-  padding: 0.5rem;
+  font-size: 1.4rem;
+  font-weight: 400;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  color: #333;
+  transition: color 0.2s ease;
+}
+
+.menu.active a {
+  /* Override scroll-based color when menu is open */
+  color: #333 !important;
 }
 
 .menu a:hover {
-  background: rgba(255, 255, 255, 0.1);
+  color: black;
 }
 body.content-light .menu a:hover {
-  background: rgba(0, 0, 0, 0.05);
+  color: black;
 }
 
 /* Sektionen Styling */
@@ -227,7 +246,32 @@ body.content-light .menu a:hover {
 }
 
 #home.content-section {
+  background: url('thailand.jpg') no-repeat center center fixed;
+  background-size: cover;
+  padding: 0;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.home.img {
+  background:transparent
+}
+
+.home-logo {
+  max-width: 500px;
+  width: 60%;
+  height: auto;
+  animation: fadeIn 2s ease-in-out;
+  background: transparent
+}
+
+#backup.content-section {
   background: url('background.jpg') no-repeat center center fixed;
+  background-size: cover;
   padding: 0;
   margin: 0 auto;
   min-height: 100vh;
@@ -235,7 +279,7 @@ body.content-light .menu a:hover {
   z-index: 10;
 }
 
-.content-section:not(#home) {
+.content-section:not(#home):not(#backup) {
   min-height: 100vh;
   width: 100%;
   display: flex;
@@ -722,7 +766,7 @@ body.content-light .menu a:hover {
   color: black;
   text-align: center;
   text-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  margin-top: 8rem;
+  margin-top: 4rem;
 }
 .activity-title {
   font-size: 3rem;
@@ -868,6 +912,11 @@ body.content-light .menu a:hover {
   cursor: pointer;
 }
 
+.rsvp-form .submit-wrapper {
+  text-align: center;
+  margin-top: 2rem;
+}
+
 .rsvp-form .form-step {
   border: none;
   padding: 0;
@@ -880,8 +929,13 @@ body.content-light .menu a:hover {
 }
 
 .rsvp-form .next-btn {
+  /* The margin is now handled by the wrapper */
+  width: auto; /* This removes the full-width property */
+}
+
+.rsvp-form .next-btn-wrapper {
+  text-align: center;
   margin-top: 1rem;
-  width: 100%;
 }
 
 .rsvp-form .error-message {

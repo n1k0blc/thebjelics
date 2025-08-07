@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     hamburgerBtn.addEventListener('click', () => {
         hamburgerBtn.classList.toggle('active');
         menu.classList.toggle('active');
+        document.body.classList.toggle('menu-open');
     });
 
     // Smooth Scrolling für Menü-Links
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Menü schließen
             hamburgerBtn.classList.remove('active');
             menu.classList.remove('active');
+            document.body.classList.remove('menu-open');
         });
     });
 

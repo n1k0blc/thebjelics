@@ -2,12 +2,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hamburger-Menü Toggle
     const hamburgerBtn = document.querySelector('.hamburger-btn');
     const menu = document.querySelector('.menu');
+    const overlay = document.querySelector('.overlay');
     const bars = document.querySelectorAll('.hamburger-btn .bar');
     const menuLinks = document.querySelectorAll('.menu a');
 
     hamburgerBtn.addEventListener('click', () => {
         hamburgerBtn.classList.toggle('active');
         menu.classList.toggle('active');
+        overlay.classList.toggle('active');
         document.body.classList.toggle('menu-open');
     });
 
@@ -28,46 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Menü schließen
             hamburgerBtn.classList.remove('active');
             menu.classList.remove('active');
+            overlay.classList.remove('active');
             document.body.classList.remove('menu-open');
         });
     });
-
-    // Farbwechsel für Icon + Menü-Links basierend auf Scrollposition
-    function updateMenuColors() {
-        const scrollY = window.scrollY;
-        const locationSection = document.getElementById('location');
-        const dresscodeSection = document.getElementById('dresscode');
-        const faqSection = document.getElementById('FAQ');
-        const rsvpSection = document.getElementById('rsvp');
-        const body = document.body;
-
-        const inBrightSection = (section) => {
-            if (!section) return false;
-            const top = section.offsetTop;
-            const height = section.offsetHeight;
-            return scrollY >= top && scrollY < top + height;
-        };
-
-        const isBright = inBrightSection(locationSection) || inBrightSection(dresscodeSection) || inBrightSection(faqSection)  || inBrightSection(rsvpSection);
-
-        bars.forEach(bar => {
-            bar.style.backgroundColor = isBright ? 'black' : 'white';
-        });
-
-        menuLinks.forEach(link => {
-            link.style.color = isBright ? 'black' : 'white';
-        });
-
-        if (isBright) {
-            body.classList.add('content-light');
-        } else {
-            body.classList.remove('content-light');
-        }
-    }
-
-    // Initial und beim Scrollen ausführen
-    updateMenuColors();
-    window.addEventListener('scroll', updateMenuColors);
 
     // --- RSVP Multi-Step Form Logic ---
     const rsvpForm = document.getElementById('rsvp-form');
@@ -81,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return re.test(String(name));
     }
     function validateEmail(email) {
-        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
         return re.test(String(email).toLowerCase());
     }
     // --- Guest Management ---
@@ -273,4 +239,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    function updateHamburgerColor() {
+        const scrollY = window.scrollY;
+        const homeSection = document.getElementById('home');
+        const locationSection = document.getElementById('location');
+        const dresscodeSection = document.getElementById('dresscode');
+        const faqSection = document.getElementById('FAQ');
+        const rsvpSection = document.getElementById('rsvp');
+
+        const inSection = (section) => {
+            if (!section) return false;
+            const top = section.offsetTop;
+            const height = section.offsetHeight;
+            return scrollY >= top && scrollY < top + height;
+        };
+
+        if (inSection(homeSection) || inSection(locationSection) || inSection(dresscodeSection) || inSection(faqSection) || inSection(rsvpSection)) {
+            hamburgerBtn.classList.add('black-bg');
+        } else {
+            hamburgerBtn.classList.remove('black-bg');
+        }
+    }
+
+    window.addEventListener('scroll', updateHamburgerColor);
 });

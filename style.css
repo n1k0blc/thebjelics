@@ -63,65 +63,7 @@ body.content-light {
   opacity: 0.85;
 }
 
-.name-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-  transform: translateY(3.5rem) translateX(4rem);
-}
 
-.name-top {
-  display: flex;
-  justify-content: center;
-}
-
-.name-bottom {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 0.8rem;
-  position: relative;
-}
-
-.name-nadja {
-  font-family: 'Lora', serif;
-  font-size: 3.2rem;
-  font-weight: 300;
-  letter-spacing: 0.7rem;
-  transform: translateY(0.6rem) translateX(-6rem);
-}
-
-.name-und {
-  font-family: 'The Impressionist';
-  font-size: 3.2rem;
-  transform: translateY(-1.5rem) translateX(-2.2rem);
-  white-space: nowrap;
-}
-
-.name-niko {
-  font-family: 'Lora', serif;
-  font-size: 3.2rem;
-  font-weight: 300;
-  letter-spacing: 0.7rem;
-  transform: translateY(-4.7rem) translateX(-1.6rem);
-}
-
-.date {
-  font-size: 2rem;
-  font-weight: 300;
-  margin-top: 3rem;
-  transform: translateY(14rem);
-}
-
-.location {
-  font-size: 1.1rem;
-  opacity: 0.9;
-  margin-top: 0.5rem;
-  font-weight: 100;
-  transform: translateY(16rem);
-}
 
 .hamburger-menu {
   position: fixed;
@@ -323,17 +265,9 @@ body.content-light .menu a:hover {
   background: transparent
 }
 
-#backup.content-section {
-  background: url('background.jpg') no-repeat center center fixed;
-  background-size: cover;
-  padding: 0;
-  margin: 0 auto;
-  min-height: 100vh;
-  position: relative;
-  z-index: 10;
-}
 
-.content-section:not(#home):not(#backup) {
+
+.content-section:not(#home) {
   min-height: 100vh;
   width: 100%;
   display: flex;
@@ -342,101 +276,96 @@ body.content-light .menu a:hover {
   align-items: center;
   border-radius: 0;
 }
-.welcome-dinner-hero {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  background: url('welcome_dinner.jpg') no-repeat center center;
-  background-size: cover;
-  background-position: center;
+
+#event.content-section {
+  background-color: #f7f6f4;
+  color: #111;
+  padding: 0 2rem 6rem; /* remove top padding to pull banner closer to the top */
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
+  flex-direction: column;    /* Inhalte von oben nach unten */
+  justify-content: flex-start; /* Oben ausrichten */
   align-items: center;
-  text-align: center;
-  color: white;
   font-family: 'Lora', serif;
 }
 
-.welcome-dinner-hero .overlay-text {
-  position: relative;
-  z-index: 2;
-  padding: 0;
-  background: none;
-}
-
-.welcome-dinner-hero .schedule-title {
-  font-size: 3rem;
-  font-weight: 400;
-  margin-bottom: 2rem;
-}
-
-.welcome-dinner-hero .welcome-info {
+.event-container {
   display: flex;
-  flex-direction: row;
   justify-content: center;
-  gap: 4rem;
-  flex-wrap: wrap;
-}
-
-.welcome-dinner-hero .welcome-item h3 {
-  font-size: 1.6rem;
-  margin-bottom: 0.5rem;
-}
-
-.welcome-dinner-hero .welcome-item p {
-  font-size: 1.2rem;
-}
-
-#event.content-section {
-  background: url('Event.jpg') no-repeat center center fixed;
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  padding: 0;
-  margin: 0;
-  min-height: 100vh;
-  width: 100%;
-  position: relative;
-  z-index: 10;
-}
-
-.schedule-wrapper {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.schedule-title {
-  font-size: 3rem;
-  font-weight: 400;
-  line-height: 1.4;
-  letter-spacing: 0.05rem;
-  margin-bottom: 1rem;
-  transform: translateY(-5rem);
-}
-
-.schedule-times {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
+  align-items: flex-start;
   gap: 2rem;
-  transform: translateY(-5rem);
+  max-width: 1200px;
+  width: 100%;
+  flex-wrap: wrap;
 }
 
-.schedule-item {
-  min-width: 120px;
+.event-item {
+  flex: 1;
+  min-width: 300px;
+  text-align: center;
 }
 
-.schedule-item .time {
-  font-size: 1.8rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
+.event-item img {
+  width: 100%;
+  height: auto;
 }
 
-.schedule-item .label {
-  font-size: 0.85rem;
-  letter-spacing: 0.1rem;
-  opacity: 0.9;
+.event-item h2 {
+  font-size: 2rem;
+  font-weight: 400;
+  margin-top: 1rem;
+}
+
+.event-item p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-top: 0.5rem;
+}
+
+.banner {
+  width: 100%;
+  text-align: center;
+  margin: 1rem 0 2rem;  /* Kein extra Abstand oben */
+}
+/* Fixed-State des Banners, sobald wir die Event-Sektion erreicht haben */
+.banner.is-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #f7f6f4;    /* gleiche Farbe wie Content */
+  z-index: 90;            /* unter Hamburger/Overlay (99/101), aber über Inhalt */
+  margin: 0;              /* kein Flow-Margin im fixed Zustand */
+  padding: 0.5rem 2rem 0;  /* kompakter, ohne unteren Padding im Fixed-Zustand */
+  box-shadow: 0 1px 0 rgba(0,0,0,0.2); /* feine Linie unten */
+}
+
+/* Wenn Banner fixed ist: HR bleibt sichtbar, aber ohne zusätzlichen Abstand */
+.banner.is-fixed hr {
+  display: block;
+  margin-top: 0.25rem;   /* minimaler Abstand oben */
+  margin-bottom: 0;      /* kein Abstand unten im Fixed-Zustand */
+}
+
+/* Während das Banner fixed ist, oben Platz reservieren,
+   damit nichts „hochspringt“ */
+#event.content-section.banner-active {
+  padding-top: calc(var(--banner-h, 0px));
+}
+
+.banner h2 {
+  font-size: 2rem;
+  font-weight: 10;
+  margin: 0;
+}
+
+.banner hr {
+  border: 0.5px solid black;
+  /* full-bleed line across the viewport */
+  width: auto;
+  margin: 1rem 0 1.5rem;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
 }
 
 #location {
@@ -1068,4 +997,16 @@ body.content-light .menu a:hover {
     border-radius: 4px;
     font-size: 1rem;
     font-family: 'Lora', serif;
+}
+
+.banner .ampersand {
+  font-family: 'The Impressionist';
+  font-size: 1em;
+  line-height: 1;
+  vertical-align: baseline;
+  position: relative;
+  top: 0.3em; /* optische Feinjustierung */
+  display: inline-block;      /* erlaubt Margins seitlich */
+  margin-left: 0.35em;        /* mehr Abstand zu "NADJA" */
+  margin-right: 0.25em;       /* leichter Abstand zu "NIKO" */
 }

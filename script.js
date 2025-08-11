@@ -243,6 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateHamburgerColor() {
         const scrollY = window.scrollY;
         const homeSection = document.getElementById('home');
+        const eventSection = document.getElementById('event');
         const locationSection = document.getElementById('location');
         const dresscodeSection = document.getElementById('dresscode');
         const faqSection = document.getElementById('FAQ');
@@ -255,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return scrollY >= top && scrollY < top + height;
         };
 
-        if (inSection(homeSection) || inSection(locationSection) || inSection(dresscodeSection) || inSection(faqSection) || inSection(rsvpSection)) {
+        if (inSection(homeSection) || inSection(eventSection) || inSection(locationSection) || inSection(dresscodeSection) || inSection(faqSection) || inSection(rsvpSection)) {
             hamburgerBtn.classList.add('black-bg');
         } else {
             hamburgerBtn.classList.remove('black-bg');
@@ -263,4 +264,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.addEventListener('scroll', updateHamburgerColor);
+    window.addEventListener('resize', updateHamburgerColor);
+    updateHamburgerColor();
+
+    // --- Sticky Banner ab der Event-Sektion ---
+(function () {
+  const eventSection = document.getElementById('event');
+  const banner = eventSection ? eventSection.querySelector('.banner') : null;
+  if (!eventSection || !banner) return;
+
+  function updateBanner() {
+    const eventTop = eventSection.offsetTop;
+    const shouldFix = window.scrollY >= eventTop;
+
+    if (shouldFix) {
+      if (!banner.classList.contains('is-fixed')) {
+        banner.classList.add('is-fixed');
+      }
+      // Platz für das fixierte Banner reservieren (dynamisch gemessen)
+      const h = banner.offsetHeight;
+      document.documentElement.style.setProperty('--banner-h', h + 'px');
+      eventSection.classList.add('banner-active');
+    } else {
+      banner.classList.remove('is-fixed');
+      document.documentElement.style.setProperty('--banner-h', '0px');
+      eventSection.classList.remove('banner-active');
+    }
+  }
+
+  ['scroll', 'resize', 'load'].forEach(ev =>
+    window.addEventListener(ev, updateBanner, { passive: true })
+  );
+  updateBanner();
+})();
 });

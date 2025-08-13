@@ -19,7 +19,7 @@
             <ul>
                 <li><a href="#home" class="scroll-link">Home</a></li>
                 
-                <li><a href="#event" class="scroll-link">Event</a></li>
+                <li><a href="#event" class="scroll-link">Events</a></li>
                 <li><a href="#location" class="scroll-link">Location</a></li>
                 <li><a href="#dresscode" class="scroll-link">Dresscode</a></li>
                 <li><a href="#FAQ" class="scroll-link">FAQ</a></li>
@@ -49,6 +49,7 @@
             <h2>NADJA <span class="ampersand">  &</span> NIKO</h2>
             <hr>
         </div>
+        <h2 class="section-title">EVENTS</h2>
         <div class="event-container">
             <div class="event-item">
                 <img src="Fairylights.png" alt="Welcome Dinner">
@@ -73,7 +74,7 @@
               </div>
         
               <div class="location-center">
-                <h2>LOCATION</h2>
+                <h2 class="section-title">LOCATION</h2>
                 <a href="https://www.baanasan.com/" target="_blank" rel="noopener noreferrer">
                   <img src="Baan_Asan.jpg" alt="Hochzeitslocation">
                 </a>
@@ -197,12 +198,49 @@
   </form>
 </section>
 
+    <!-- Scroll to Top Button -->
+    <button id="scrollToTop" class="scroll-to-top" aria-label="Scroll to top">
+      ▲
+    </button>
+
+    <!-- Resubmission Overlay -->
+    <div id="resubmissionOverlay" class="resubmission-overlay">
+      <div class="resubmission-modal">
+        <h3>RSVP bereits eingereicht</h3>
+        <p>Du hast bereits ein RSVP eingereicht. Möchtest du deine Antwort ändern?</p>
+        <div class="resubmission-buttons">
+          <button id="editRsvpBtn" class="resubmission-btn">JA, BEARBEITEN</button>
+          <button id="keepRsvpBtn" class="resubmission-btn secondary">NEIN, BEHALTEN</button>
+        </div>
+      </div>
+    </div>
+
     <script src="script.js"></script>
     <script>
   window.addEventListener('load', function () {
     if (window.location.hash === '#location') {
       history.replaceState(null, null, window.location.pathname);
     }
+  });
+
+  // Scroll to Top Button functionality
+  const scrollToTopBtn = document.getElementById('scrollToTop');
+  
+  // Show/hide button based on scroll position
+  window.addEventListener('scroll', function() {
+    if (window.pageYOffset > 300) {
+      scrollToTopBtn.classList.add('visible');
+    } else {
+      scrollToTopBtn.classList.remove('visible');
+    }
+  });
+  
+  // Scroll to top when button is clicked
+  scrollToTopBtn.addEventListener('click', function() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   });
 </script>
 </body>

@@ -44,6 +44,82 @@ app.get('/api/ping', (req, res) => {
   res.status(200).send('pong');
 });
 
+// --- API Route to check if someone is invited ---
+app.get('/api/check-invitation', async (req, res) => {
+  const { firstName, lastName } = req.query;
+
+  if (!firstName || !lastName) {
+    return res.status(400).json({ error: 'First name and last name are required.' });
+  }
+
+  const normalizedFirstName = firstName.trim().toLowerCase();
+  const normalizedLastName = lastName.trim().toLowerCase();
+
+  const query = `
+    SELECT id, first_name, last_name, email, attending, food_restrictions, song_request, 
+           accommodation, arrival_date, comment, submission_timestamp
+    FROM rsvps
+    WHERE LOWER(first_name) = $1 AND LOWER(last_name) = $2;
+  `;
+
+  try {
+    const { rows } = await pool.query(query, [normalizedFirstName, normalizedLastName]);
+    
+    if (rows.length > 0) {
+      const person = rows[0];
+      const hasSubmitted = person.submission_timestamp !== null;
+      
+      return res.json({ 
+        invited: true, 
+        person: person,
+        hasSubmitted: hasSubmitted,
+        previousSubmission: hasSubmitted ? person : null
+      });
+    }
+    return res.status(404).json({ invited: false, message: 'Sorry, this name is not on our guest list.' });
+  } catch (error) {
+    console.error('Error checking invitation:', error);
+    return res.status(500).json({ error: 'An internal server error occurred.' });
+  }
+});
+
+// --- API Route to get previous guests for an RSVP ---
+app.get('/api/previous-guests', async (req, res) => {
+  const { rsvpId } = req.query;
+
+  if (!rsvpId) {
+    return res.status(400).json({ error: 'RSVP ID is required.' });
+  }
+
+  try {
+    // First, get the group_id of the main RSVP
+    const mainRsvpQuery = `
+      SELECT group_id FROM rsvps WHERE id = $1;
+    `;
+    const mainRsvpResult = await pool.query(mainRsvpQuery, [rsvpId]);
+    
+    if (mainRsvpResult.rows.length === 0) {
+      return res.status(404).json({ error: 'RSVP not found.' });
+    }
+
+    const groupId = mainRsvpResult.rows[0].group_id;
+
+    // Get all guests (non-main contacts) in the same group
+    const guestsQuery = `
+      SELECT first_name, last_name
+      FROM rsvps
+      WHERE group_id = $1 AND is_main_contact = false
+      ORDER BY id;
+    `;
+    
+    const { rows } = await pool.query(guestsQuery, [groupId]);
+    return res.json({ guests: rows });
+  } catch (error) {
+    console.error('Error fetching previous guests:', error);
+    return res.status(500).json({ error: 'An internal server error occurred.' });
+  }
+});
+
 // --- API Route to find a known partner ---
 app.get('/api/partner', async (req, res) => {
   const { firstName, lastName } = req.query;
@@ -111,21 +187,95 @@ app.post('/api/rsvp', async (req, res) => {
     // Start a database transaction
     await client.query('BEGIN');
 
-    // 1. Insert the main RSVP record
-    const rsvpInsertQuery = `
-      INSERT INTO rsvps (first_name, last_name, email, attending, food_restrictions, song_request, accommodation, arrival_date, comment)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      RETURNING id;
+    // Check if main person already exists in database
+    const existingMainQuery = `
+      SELECT id, group_id FROM rsvps 
+      WHERE LOWER(first_name) = LOWER($1) AND LOWER(last_name) = LOWER($2) 
+      AND (submission_timestamp IS NULL OR submission_timestamp IS NOT NULL)
+      LIMIT 1
     `;
-    const rsvpValues = [firstName, lastName, email, isAttending, foodRestrictions, song, accommodation, arrivalDate || null, comment];
-    const rsvpResult = await client.query(rsvpInsertQuery, rsvpValues);
-    const rsvpId = rsvpResult.rows[0].id;
+    const existingMainResult = await client.query(existingMainQuery, [firstName, lastName]);
 
-    // 2. Insert each guest associated with the RSVP
+    let groupId;
+    let mainRsvpId;
+
+    if (existingMainResult.rows.length > 0) {
+      // Person exists - UPDATE existing record
+      const existingRecord = existingMainResult.rows[0];
+      groupId = existingRecord.group_id;
+      mainRsvpId = existingRecord.id;
+
+      // If no group_id exists yet, generate a new one
+      if (!groupId) {
+        const groupIdResult = await client.query('SELECT gen_random_uuid() as group_id');
+        groupId = groupIdResult.rows[0].group_id;
+      }
+
+      const rsvpUpdateQuery = `
+        UPDATE rsvps 
+        SET email = $1, attending = $2, food_restrictions = $3, song_request = $4, 
+            accommodation = $5, arrival_date = $6, comment = $7, submission_timestamp = CURRENT_TIMESTAMP,
+            is_main_contact = true, group_id = $9
+        WHERE id = $8
+      `;
+      await client.query(rsvpUpdateQuery, [email, isAttending, foodRestrictions, song, accommodation, arrivalDate || null, comment, mainRsvpId, groupId]);
+
+      // Delete existing guests in this group (we'll re-add them) - only if group_id exists
+      if (existingRecord.group_id) {
+        await client.query('DELETE FROM rsvps WHERE group_id = $1 AND is_main_contact = false', [existingRecord.group_id]);
+      }
+    } else {
+      // Person doesn't exist - CREATE new record
+      const groupIdResult = await client.query('SELECT gen_random_uuid() as group_id');
+      groupId = groupIdResult.rows[0].group_id;
+
+      const rsvpInsertQuery = `
+        INSERT INTO rsvps (first_name, last_name, email, attending, food_restrictions, song_request, accommodation, arrival_date, comment, group_id, is_main_contact, submission_timestamp)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, CURRENT_TIMESTAMP)
+        RETURNING id;
+      `;
+      const rsvpValues = [firstName, lastName, email, isAttending, foodRestrictions, song, accommodation, arrivalDate || null, comment, groupId, true];
+      const rsvpResult = await client.query(rsvpInsertQuery, rsvpValues);
+      mainRsvpId = rsvpResult.rows[0].id;
+    }
+
+    // Handle guests - check each guest individually
     if (guests && guests.length > 0) {
-      const guestInsertQuery = 'INSERT INTO guests (rsvp_id, first_name, last_name) VALUES ($1, $2, $3)';
       for (const guest of guests) {
-        await client.query(guestInsertQuery, [rsvpId, guest.firstName, guest.lastName]);
+        // Check if this guest already exists in the database (as a main contact)
+        const existingGuestQuery = `
+          SELECT id FROM rsvps 
+          WHERE LOWER(first_name) = LOWER($1) AND LOWER(last_name) = LOWER($2)
+          AND submission_timestamp IS NULL
+          LIMIT 1
+        `;
+        const existingGuestResult = await client.query(existingGuestQuery, [guest.firstName, guest.lastName]);
+
+        if (existingGuestResult.rows.length > 0) {
+          // Guest exists in database - UPDATE them as a guest in this group
+          const existingGuestId = existingGuestResult.rows[0].id;
+          const guestUpdateQuery = `
+            UPDATE rsvps 
+            SET email = $1, attending = $2, food_restrictions = $3, song_request = $4,
+                accommodation = $5, arrival_date = $6, comment = $7, group_id = $8, is_main_contact = false,
+                submission_timestamp = CURRENT_TIMESTAMP
+            WHERE id = $9
+          `;
+          await client.query(guestUpdateQuery, [
+            email, isAttending, foodRestrictions, song, accommodation, 
+            arrivalDate || null, comment, groupId, existingGuestId
+          ]);
+        } else {
+          // Guest doesn't exist - INSERT new guest record
+          const guestInsertQuery = `
+            INSERT INTO rsvps (first_name, last_name, email, attending, food_restrictions, song_request, accommodation, arrival_date, comment, group_id, is_main_contact, submission_timestamp)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, CURRENT_TIMESTAMP)
+          `;
+          await client.query(guestInsertQuery, [
+            guest.firstName, guest.lastName, email, isAttending, foodRestrictions, 
+            song, accommodation, arrivalDate || null, comment, groupId, false
+          ]);
+        }
       }
     }
 
@@ -139,12 +289,7 @@ app.post('/api/rsvp', async (req, res) => {
     }
     console.error('Error saving RSVP to database:', error);
 
-    // Check for unique constraint violation on the email field (PostgreSQL error code 23505)
-    if (error.code === '23505' && error.constraint === 'rsvps_email_key') {
-      return res.status(409).json({ message: 'This email address has already been used to RSVP. Please use a different email.' });
-    }
-
-    // For all other errors, send a generic message
+    // For all errors, send a generic message
     return res.status(500).json({ message: 'An error occurred while submitting your RSVP. Please try again.' });
   } finally {
     // Release the client back to the pool

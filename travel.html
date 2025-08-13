@@ -8,16 +8,33 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body class="content-light">
-  <div class="location-button-wrapper" style="margin: 2rem;">
-    <a href="index.html#location" class="travel-back-button">ZURÜCK</a>
-  </div>
-    <section class="content-section">
+  <section class="content-section">
+    <div class="travel-header-row">
+      <div class="banner">
+        <a href="index.html#location" class="travel-back-button">ZURÜCK</a>
+        <h2>NADJA <span class="ampersand">  &</span> NIKO</h2>
+        <hr>
+      </div>
+    </div>
       <div class="travel-hero">
         <img src="Koh_Samui.png" alt="Koh Samui">
           <div class="travel-hero-overlay">
             <h2 class="schedule-title">ANREISE & UNTERKUNFT</h2>
           </div>
       </div>
+      </div>
+  
+      <div class="travel-intro-text">
+        <p>
+          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut 
+          labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores 
+          et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+        </p>
+        <p>
+          Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum 
+          dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent 
+          luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
+        </p>
       </div>
   
      <div class="icon-grid">
@@ -68,5 +85,47 @@ Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie co
     </iframe>
   </div>
 
+  <!-- Scroll to Top Button -->
+  <button id="scrollToTop" class="scroll-to-top" aria-label="Scroll to top">
+    ▲
+  </button>
+
   </body>
+  <script>
+    // Banner sticky functionality for travel page
+    window.addEventListener('scroll', function() {
+      const banner = document.querySelector('.travel-header-row .banner');
+      const headerRow = document.querySelector('.travel-header-row');
+      
+      if (banner && headerRow) {
+        const headerRect = headerRow.getBoundingClientRect();
+        
+        if (headerRect.top <= 0) {
+          banner.classList.add('is-fixed');
+        } else {
+          banner.classList.remove('is-fixed');
+        }
+      }
+    });
+
+    // Scroll to Top Button functionality
+    const scrollToTopBtn = document.getElementById('scrollToTop');
+    
+    // Show/hide button based on scroll position
+    window.addEventListener('scroll', function() {
+      if (window.pageYOffset > 300) {
+        scrollToTopBtn.classList.add('visible');
+      } else {
+        scrollToTopBtn.classList.remove('visible');
+      }
+    });
+    
+    // Scroll to top when button is clicked
+    scrollToTopBtn.addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  </script>
 </html>

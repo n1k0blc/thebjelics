@@ -130,10 +130,22 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('food-restrictions').value = submissionData.food_restrictions || '';
         document.getElementById('song').value = submissionData.song_request || '';
         document.getElementById('accommodation').value = submissionData.accommodation || '';
-        document.getElementById('arrival-date').value = submissionData.arrival_date || '';
+        
+        // Format the arrival date properly for HTML date input (YYYY-MM-DD format)
+        if (submissionData.arrival_date) {
+            const arrivalDate = new Date(submissionData.arrival_date);
+            if (!isNaN(arrivalDate.getTime())) {
+                // Format as YYYY-MM-DD
+                const formattedDate = arrivalDate.toISOString().split('T')[0];
+                document.getElementById('arrival-date').value = formattedDate;
+            }
+        } else {
+            document.getElementById('arrival-date').value = '';
+        }
+        
         document.getElementById('comment').value = submissionData.comment || '';
 
-        // Load previous guests and check for partner suggestions
+        // Load previous guests (including potential partners)
         try {
             const guestsResponse = await fetch(`http://localhost:3000/api/previous-guests?rsvpId=${submissionData.id}`);
             if (guestsResponse.ok) {
@@ -146,29 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Everyone gets maximum 2 guests
                 maxAllowedGuests = 2;
                 
-                // Check for partner suggestions (even when editing)
-                try {
-                    const partnerResponse = await fetch(`http://localhost:3000/api/partner?firstName=${encodeURIComponent(submissionData.first_name)}&lastName=${encodeURIComponent(submissionData.last_name)}`);
-                    
-                    if (partnerResponse.ok) {
-                        const partner = await partnerResponse.json();
-                        
-                        // Check if partner is already in previous guests
-                        const hasPartner = guestsData.guests.some(guest => 
-                            guest.first_name.toLowerCase() === partner.firstName.toLowerCase() && 
-                            guest.last_name.toLowerCase() === partner.lastName.toLowerCase()
-                        );
-                        
-                        if (!hasPartner) {
-                            // Add partner suggestion first
-                            createGuestEntry(partner.firstName, partner.lastName);
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error checking for partner:', error);
-                }
-                
-                // Add all previous guests
+                // Add all guests returned by the API (includes both regular guests and partners)
                 guestsData.guests.forEach(guest => {
                     createGuestEntry(guest.first_name, guest.last_name);
                 });
@@ -190,13 +180,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (previousSubmissionData) {
             await loadPreviousSubmission(previousSubmissionData);
             
-            // Move directly to step 2 (guest step)
+            // Keep step 1 visible but make the name fields read-only and move to step 2
             const step1 = document.getElementById('step-1');
             const step2 = document.getElementById('step-2');
             const firstNextBtn = step1.querySelector('.next-btn');
+            const firstNameInput = document.getElementById('first-name');
+            const lastNameInput = document.getElementById('last-name');
             
-            // Hide step 1 and show step 2
-            step1.classList.remove('visible');
+            // Make name fields read-only and style them differently
+            firstNameInput.readOnly = true;
+            lastNameInput.readOnly = true;
+            firstNameInput.style.backgroundColor = '#f0f0f0';
+            lastNameInput.style.backgroundColor = '#f0f0f0';
+            firstNameInput.style.color = '#666';
+            lastNameInput.style.color = '#666';
+            
+            // Hide the next button in step 1 and show step 2
             firstNextBtn.style.display = 'none';
             step2.classList.add('visible');
         }
@@ -266,6 +265,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     // Step 2: Check if person has already submitted
                     if (invitationData.hasSubmitted) {
+                        // Check if person can edit (is main contact)
+                        if (invitationData.canEdit === false) {
+                            // Person is not the main contact, show error message
+                            nameError.textContent = invitationData.message;
+                            nameError.style.color = '#ff0000';
+                            return;
+                        }
+                        
+                        // Person can edit, show resubmission overlay
                         previousSubmissionData = invitationData.previousSubmission;
                         showResubmissionOverlay();
                         return; // Stop here, user needs to decide
@@ -532,4 +540,109 @@ document.addEventListener('DOMContentLoaded', () => {
   );
   updateBanner();
 })();
+
+// --- Sticky Banner für Gallery-Seite ---
+(function () {
+  const galleryHeaderRow = document.querySelector('.gallery-header-row');
+  const banner = galleryHeaderRow ? galleryHeaderRow.querySelector('.banner') : null;
+  if (!galleryHeaderRow || !banner) return;
+
+  function updateBanner() {
+    const shouldFix = window.scrollY >= 50; // Fixed threshold for gallery
+
+    if (shouldFix) {
+      if (!banner.classList.contains('is-fixed')) {
+        banner.classList.add('is-fixed');
+      }
+      // Reserve space for the fixed banner
+      const h = banner.offsetHeight;
+      document.documentElement.style.setProperty('--banner-h', h + 'px');
+      document.body.style.paddingTop = `${h}px`;
+    } else {
+      banner.classList.remove('is-fixed');
+      document.documentElement.style.setProperty('--banner-h', '0px');
+      document.body.style.paddingTop = '0';
+    }
+  }
+
+  ['scroll', 'resize', 'load'].forEach(ev =>
+    window.addEventListener(ev, updateBanner, { passive: true })
+  );
+  updateBanner();
+})();
+
+// --- Add to Calendar Functionality ---
+const calendarButtons = document.querySelectorAll('.add-to-calendar-btn');
+
+// Event data - adjust dates and times as needed
+const eventData = {
+    'welcome-dinner': {
+        title: 'Welcome Dinner - Nadja & Niko Wedding',
+        startDate: '2025-12-30T19:00:00', // Adjust to actual date/time
+        endDate: '2025-12-30T22:00:00',
+        location: 'Villa Baan Asan, Koh Samui, Thailand',
+        description: 'Welcome dinner for Nadja & Niko\'s wedding celebration. Join us for an evening of good food and great company as we kick off our wedding festivities.'
+    },
+    'wedding-ceremony': {
+        title: 'Wedding Ceremony & Reception - Nadja & Niko',
+        startDate: '2025-12-31T16:00:00', // Adjust to actual date/time
+        endDate: '2025-12-31T23:00:00',
+        location: 'Villa Baan Asan, Koh Samui, Thailand',
+        description: 'The wedding ceremony and reception of Nadja & Niko. Witness their vows and celebrate their love with dancing, dining, and unforgettable memories.'
+    }
+};
+
+calendarButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+        const eventType = e.currentTarget.getAttribute('data-event');
+        const event = eventData[eventType];
+        
+        if (event) {
+            downloadCalendarEvent(event);
+        }
+    });
+});
+
+function downloadCalendarEvent(event) {
+    // Format dates for ICS format (YYYYMMDDTHHMMSSZ)
+    const formatDateForICS = (dateString) => {
+        return new Date(dateString).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
+    
+    const startDate = formatDateForICS(event.startDate);
+    const endDate = formatDateForICS(event.endDate);
+    const now = formatDateForICS(new Date().toISOString());
+    
+    // Create ICS file content
+    const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Nadja & Niko Wedding//Calendar//EN
+BEGIN:VEVENT
+UID:${Date.now()}@thebjelics-wedding.com
+DTSTAMP:${now}
+DTSTART:${startDate}
+DTEND:${endDate}
+SUMMARY:${event.title}
+DESCRIPTION:${event.description}
+LOCATION:${event.location}
+STATUS:CONFIRMED
+SEQUENCE:0
+END:VEVENT
+END:VCALENDAR`;
+    
+    // Create and download the file
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = `${event.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}.ics`;
+    
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Clean up
+    window.URL.revokeObjectURL(link.href);
+}
+
 });

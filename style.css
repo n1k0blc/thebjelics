@@ -324,6 +324,36 @@ body.content-light .menu a:hover {
   margin-top: 0.5rem;
 }
 
+.add-to-calendar-wrapper {
+  margin-top: 1.5rem;
+}
+
+.add-to-calendar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Lora', serif;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.add-to-calendar-btn:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.add-to-calendar-btn i {
+  font-size: 1rem;
+}
+
 .banner {
   width: 100%;
   text-align: center;
@@ -892,6 +922,21 @@ body.content-light .menu a:hover {
   margin: 0.5rem 0 1.5rem;
 }
 
+.rsvp-form .radio-group input[type="radio"] {
+  accent-color: black;
+  width: 18px;
+  height: 18px;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.rsvp-form .radio-group label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
 .rsvp-form button {
   display: inline-block;
   background-color: black;
@@ -1197,4 +1242,156 @@ body.content-light .menu a:hover {
   margin: 0.25rem calc(50% - 50vw) 0;   /* minimaler Abstand */
   border: 0.5px solid black;
   width: 100vw;
+}
+
+/* Gallery Page Styles */
+.gallery-content {
+  background-color: #f7f6f4;
+  color: #111;
+  min-height: 100vh;
+  padding: 0;
+  font-family: 'Lora', serif;
+}
+
+/* Gallery-Header-Zeile: Nur Banner */
+.gallery-header-row {
+  position: relative;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+/* Banner-Anpassungen für die gallery.html - zentriert über die volle Breite */
+.gallery-header-row .banner {
+  position: relative;
+  width: 100%;
+  text-align: center;
+  margin: 0;
+}
+
+.gallery-header-row .banner .travel-back-button {
+  position: absolute;
+  left: 2rem;
+  top: 0;
+  z-index: 10;
+  margin: 0;
+}
+
+.gallery-header-row .banner hr {
+  border: 0.5px solid black;
+  width: 100vw;
+  margin: 1rem calc(50% - 50vw) 1.5rem;
+}
+
+.gallery-header-row .banner h2 {
+  font-size: 2rem;
+  font-weight: 10;
+  margin: 0;
+}
+
+/* Fixed Banner für Gallery-Seite beim Scrollen */
+.gallery-header-row .banner.is-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #f7f6f4;    /* gleiche Farbe wie Content */
+  z-index: 90;            /* unter Hamburger/Overlay (99/101), aber über Inhalt */
+  margin: 0;
+  padding: 0.5rem 2rem 0;  /* kompakter Padding */
+  box-shadow: 0 1px 0 rgba(0,0,0,0.2); /* feine Linie unten */
+}
+
+.gallery-header-row .banner.is-fixed .travel-back-button {
+  position: absolute;
+  left: 2rem;
+  top: 0.5rem;
+  z-index: 10;
+}
+
+.gallery-header-row .banner.is-fixed hr {
+  display: block;
+  margin: 0.25rem calc(50% - 50vw) 0;   /* minimaler Abstand */
+  border: 0.5px solid black;
+  width: 100vw;
+}
+
+/* Gallery Section */
+.gallery-section {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Gallery Description */
+.gallery-description {
+  text-align: center;
+  margin: 3rem auto 4rem;
+  max-width: 800px;
+  padding: 0 2rem;
+}
+
+.gallery-description p {
+  font-family: 'Lora', serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  line-height: 1.8;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Gallery Grid - 2 Spalten */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  width: 100%;
+}
+
+.gallery-item {
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gallery-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.05);
+}
+
+/* Responsive Design für Gallery */
+@media (max-width: 768px) {
+  .gallery-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .gallery-section {
+    padding: 1rem;
+  }
+  
+  .gallery-header-row .banner .travel-back-button {
+    left: 1rem;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .gallery-header-row .banner.is-fixed .travel-back-button {
+    left: 1rem;
+    top: 0.4rem;
+  }
 }

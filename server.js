@@ -57,7 +57,7 @@ app.get('/api/check-invitation', async (req, res) => {
 
   const query = `
     SELECT id, first_name, last_name, email, attending, food_restrictions, song_request, 
-           accommodation, arrival_date, comment, submission_timestamp
+           accommodation, arrival_date, comment, submission_timestamp, is_main_contact, group_id
     FROM rsvps
     WHERE LOWER(first_name) = $1 AND LOWER(last_name) = $2;
   `;
@@ -69,10 +69,32 @@ app.get('/api/check-invitation', async (req, res) => {
       const person = rows[0];
       const hasSubmitted = person.submission_timestamp !== null;
       
+      // Check if this person is trying to edit but is not the main contact
+      if (hasSubmitted && !person.is_main_contact) {
+        // Find the main contact of this group
+        const mainContactQuery = `
+          SELECT first_name, last_name FROM rsvps 
+          WHERE group_id = $1 AND is_main_contact = true 
+          LIMIT 1
+        `;
+        const mainContactResult = await pool.query(mainContactQuery, [person.group_id]);
+        
+        if (mainContactResult.rows.length > 0) {
+          const mainContact = mainContactResult.rows[0];
+          return res.status(403).json({ 
+            invited: true,
+            hasSubmitted: true,
+            canEdit: false,
+            message: `Changes can only be made by the main contact: ${mainContact.first_name} ${mainContact.last_name}. Please contact them to make any modifications to your RSVP.`
+          });
+        }
+      }
+      
       return res.json({ 
         invited: true, 
         person: person,
         hasSubmitted: hasSubmitted,
+        canEdit: true,
         previousSubmission: hasSubmitted ? person : null
       });
     }
@@ -92,9 +114,9 @@ app.get('/api/previous-guests', async (req, res) => {
   }
 
   try {
-    // First, get the group_id of the main RSVP
+    // First, get the group_id and main contact info of the main RSVP
     const mainRsvpQuery = `
-      SELECT group_id FROM rsvps WHERE id = $1;
+      SELECT group_id, first_name, last_name FROM rsvps WHERE id = $1;
     `;
     const mainRsvpResult = await pool.query(mainRsvpQuery, [rsvpId]);
     
@@ -102,7 +124,8 @@ app.get('/api/previous-guests', async (req, res) => {
       return res.status(404).json({ error: 'RSVP not found.' });
     }
 
-    const groupId = mainRsvpResult.rows[0].group_id;
+    const { group_id: groupId, first_name: mainFirstName, last_name: mainLastName } = mainRsvpResult.rows[0];
+    const guests = [];
 
     // Get all guests (non-main contacts) in the same group
     const guestsQuery = `
@@ -112,8 +135,44 @@ app.get('/api/previous-guests', async (req, res) => {
       ORDER BY id;
     `;
     
-    const { rows } = await pool.query(guestsQuery, [groupId]);
-    return res.json({ guests: rows });
+    const guestsResult = await pool.query(guestsQuery, [groupId]);
+    guests.push(...guestsResult.rows);
+
+    // Additionally, check if the main contact has a known partner who should be displayed as a guest
+    // This handles the case where the partner exists as a separate main contact
+    const partnerQuery = `
+      SELECT person1_first_name, person1_last_name, person2_first_name, person2_last_name
+      FROM couples
+      WHERE (LOWER(person1_first_name) = LOWER($1) AND LOWER(person1_last_name) = LOWER($2))
+         OR (LOWER(person2_first_name) = LOWER($1) AND LOWER(person2_last_name) = LOWER($2));
+    `;
+    
+    const partnerResult = await pool.query(partnerQuery, [mainFirstName, mainLastName]);
+    
+    if (partnerResult.rows.length > 0) {
+      const couple = partnerResult.rows[0];
+      let partnerName;
+
+      if (mainFirstName.toLowerCase() === couple.person1_first_name.toLowerCase() && 
+          mainLastName.toLowerCase() === couple.person1_last_name.toLowerCase()) {
+        partnerName = { first_name: couple.person2_first_name, last_name: couple.person2_last_name };
+      } else {
+        partnerName = { first_name: couple.person1_first_name, last_name: couple.person1_last_name };
+      }
+
+      // Check if partner is already in the guests list
+      const hasPartner = guests.some(guest => 
+        guest.first_name.toLowerCase() === partnerName.first_name.toLowerCase() && 
+        guest.last_name.toLowerCase() === partnerName.last_name.toLowerCase()
+      );
+
+      // If partner is not already in guests, add them
+      if (!hasPartner) {
+        guests.push(partnerName);
+      }
+    }
+    
+    return res.json({ guests });
   } catch (error) {
     console.error('Error fetching previous guests:', error);
     return res.status(500).json({ error: 'An internal server error occurred.' });

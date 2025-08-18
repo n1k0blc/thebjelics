@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery - Nadja & Niko</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="content-light">
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top">▲</button>
+
+    <!-- Main Content -->
+    <main class="gallery-content">
+        <section class="content-section">
+            <!-- Header Row mit Banner und Back Button -->
+            <div class="travel-header-row">
+                <div class="banner">
+                    <a href="index.html#home" class="travel-back-button">ZURÜCK</a>
+                    <h2>NADJA <span class="ampersand">  &</span> NIKO</h2>
+                    <hr>
+                </div>
+            </div>
+
+            <!-- Gallery Description -->
+            <div class="gallery-description">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+            </div>
+
+            <!-- Gallery Grid -->
+            <section class="gallery-section">
+                <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_7.jpeg" alt="Gallery Image 1" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_15.jpeg" alt="Gallery Image 2" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_3.jpeg" alt="Gallery Image 3" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_11.jpeg" alt="Gallery Image 4" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_18.jpeg" alt="Gallery Image 5" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_2.jpeg" alt="Gallery Image 6" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_13.jpeg" alt="Gallery Image 7" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_6.jpeg" alt="Gallery Image 8" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_10.jpeg" alt="Gallery Image 9" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_1.jpeg" alt="Gallery Image 10" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_16.jpeg" alt="Gallery Image 11" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_4.jpeg" alt="Gallery Image 12" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_12.jpeg" alt="Gallery Image 13" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_8.jpeg" alt="Gallery Image 14" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_17.jpeg" alt="Gallery Image 15" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_5.jpeg" alt="Gallery Image 16" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="Gallery/Bild_14.jpeg" alt="Gallery Image 17" loading="lazy">
+                </div>
+                <!-- Add more gallery items as needed -->
+            </div>
+            </section>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        // Banner sticky functionality for gallery page
+        window.addEventListener('scroll', function() {
+          const banner = document.querySelector('.travel-header-row .banner');
+          const headerRow = document.querySelector('.travel-header-row');
+          
+          if (banner && headerRow) {
+            const headerRect = headerRow.getBoundingClientRect();
+            
+            if (headerRect.top <= 0) {
+              banner.classList.add('is-fixed');
+            } else {
+              banner.classList.remove('is-fixed');
+            }
+          }
+        });
+
+        // Scroll to Top Button functionality
+        const scrollToTopBtn = document.getElementById('scrollToTop');
+        
+        // Show/hide button based on scroll position
+        window.addEventListener('scroll', function() {
+          if (window.pageYOffset > 300) {
+            scrollToTopBtn.classList.add('visible');
+          } else {
+            scrollToTopBtn.classList.remove('visible');
+          }
+        });
+        
+        // Scroll to top when button is clicked
+        scrollToTopBtn.addEventListener('click', function() {
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+        });
+    </script>
+</body>
+</html>

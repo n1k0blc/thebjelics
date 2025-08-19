@@ -9,4 +9,3 @@
 *.json
 # ...except for package management files.
 !package.json
-!package-lock.json

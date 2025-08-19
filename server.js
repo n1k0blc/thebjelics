@@ -5,11 +5,15 @@ console.log('--- Loading server.js with /api/partner route ---');
 
 const express = require('express');
 const { Pool } = require('pg');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 // --- Middleware ---
+// Serve static files (HTML, CSS, JS, images)
+app.use(express.static(__dirname));
+
 // Manually handle CORS to ensure preflight requests are handled correctly.
 app.use((req, res, next) => {
   // Allow requests from any origin. For production, you should restrict this to your frontend's domain.
@@ -32,16 +36,53 @@ app.use(express.json());
 
 // --- PostgreSQL Connection ---
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_DATABASE,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
+  connectionString: process.env.DATABASE_URL,
+  ssl: false, // Unix sockets don't use SSL
 });
 
 // Add a simple "ping" route for health checks
 app.get('/api/ping', (req, res) => {
   res.status(200).send('pong');
+});
+
+// Debug route to check database tables and data
+app.get('/api/debug', async (req, res) => {
+  try {
+    // Check if tables exist
+    const tablesQuery = `
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public';
+    `;
+    const { rows: tables } = await pool.query(tablesQuery);
+    
+    // Get table structure for rsvps
+    const rsvpsStructureQuery = `
+      SELECT column_name, data_type, is_nullable, column_default
+      FROM information_schema.columns 
+      WHERE table_name = 'rsvps' AND table_schema = 'public'
+      ORDER BY ordinal_position;
+    `;
+    const { rows: rsvpsStructure } = await pool.query(rsvpsStructureQuery);
+    
+    // Get couples data
+    const couplesQuery = `SELECT * FROM couples LIMIT 5;`;
+    const { rows: couples } = await pool.query(couplesQuery);
+    
+    // Get rsvps data  
+    const rsvpsQuery = `SELECT * FROM rsvps LIMIT 5;`;
+    const { rows: rsvps } = await pool.query(rsvpsQuery);
+    
+    res.json({
+      tables: tables.map(t => t.table_name),
+      rsvpsStructure: rsvpsStructure,
+      couples: couples,
+      rsvps: rsvps
+    });
+  } catch (error) {
+    console.error('Debug error:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // --- API Route to check if someone is invited ---
@@ -356,6 +397,19 @@ app.post('/api/rsvp', async (req, res) => {
       client.release();
     }
   }
+});
+
+// --- Serve main pages ---
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/travel', (req, res) => {
+  res.sendFile(path.join(__dirname, 'travel.html'));
+});
+
+app.get('/gallery', (req, res) => {
+  res.sendFile(path.join(__dirname, 'gallery.html'));
 });
 
 // --- Start Server ---

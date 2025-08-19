@@ -1,4 +1,88 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Password Protection ---
+    const CORRECT_PASSWORD = 'Nadja&Niko';
+    const PASSWORD_COOKIE_NAME = 'wedding_access';
+    const PASSWORD_COOKIE_DURATION = 30; // days
+
+    function setCookie(name, value, days) {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+        document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Strict`;
+    }
+
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+
+    function checkPasswordAccess() {
+        const accessCookie = getCookie(PASSWORD_COOKIE_NAME);
+        const passwordOverlay = document.getElementById('password-overlay');
+        
+        if (accessCookie === 'granted') {
+            // User has already entered correct password
+            passwordOverlay.classList.add('hidden');
+            setTimeout(() => {
+                passwordOverlay.style.display = 'none';
+            }, 500);
+            return true;
+        } else {
+            // Show password overlay
+            passwordOverlay.style.display = 'flex';
+            return false;
+        }
+    }
+
+    function handlePasswordSubmit(event) {
+        event.preventDefault();
+        const passwordInput = document.getElementById('password-input');
+        const passwordError = document.getElementById('password-error');
+        const enteredPassword = passwordInput.value.trim();
+
+        if (enteredPassword === CORRECT_PASSWORD) {
+            // Correct password
+            setCookie(PASSWORD_COOKIE_NAME, 'granted', PASSWORD_COOKIE_DURATION);
+            const passwordOverlay = document.getElementById('password-overlay');
+            passwordOverlay.classList.add('hidden');
+            setTimeout(() => {
+                passwordOverlay.style.display = 'none';
+            }, 500);
+            passwordError.classList.remove('show');
+        } else {
+            // Incorrect password
+            passwordError.textContent = 'Incorrect password. Please try again.';
+            passwordError.classList.add('show');
+            passwordInput.value = '';
+            passwordInput.focus();
+            
+            // Add shake animation
+            passwordInput.style.animation = 'shake 0.5s ease-in-out';
+            setTimeout(() => {
+                passwordInput.style.animation = '';
+            }, 500);
+        }
+    }
+
+    // Initialize password protection
+    const hasAccess = checkPasswordAccess();
+    
+    // Set up password form
+    const passwordForm = document.getElementById('password-form');
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', handlePasswordSubmit);
+    }
+
+    // If no access, don't initialize the rest of the app
+    if (!hasAccess) {
+        return;
+    }
+
     // Hamburger-Menü Toggle
     const hamburgerBtn = document.querySelector('.hamburger-btn');
     const menu = document.querySelector('.menu');
@@ -68,7 +152,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const guestListContainer = document.getElementById('guest-list');
 
     function createGuestEntry(firstName = '', lastName = '') {
-        if (guestCount >= maxAllowedGuests) return;
+        console.log('createGuestEntry called with:', firstName, lastName, 'guestCount:', guestCount, 'maxAllowedGuests:', maxAllowedGuests); // Debug log
+        if (guestCount >= maxAllowedGuests) {
+            console.log('Cannot add guest: limit reached'); // Debug log
+            return;
+        }
         guestCount++;
 
         const guestEntry = document.createElement('div');
@@ -82,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
         guestListContainer.appendChild(guestEntry);
+        console.log('Guest entry created and added to DOM'); // Debug log
 
         guestEntry.querySelector('.remove-guest-btn').addEventListener('click', (e) => {
             e.target.closest('.guest-entry').remove();
@@ -147,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Load previous guests (including potential partners)
         try {
-            const guestsResponse = await fetch(`http://localhost:3000/api/previous-guests?rsvpId=${submissionData.id}`);
+            const guestsResponse = await fetch(`/api/previous-guests?rsvpId=${submissionData.id}`);
             if (guestsResponse.ok) {
                 const guestsData = await guestsResponse.json();
                 
@@ -155,8 +244,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 guestListContainer.innerHTML = '';
                 guestCount = 0;
                 
-                // Everyone gets maximum 2 guests
-                maxAllowedGuests = 2;
+                // Check if this person has a partner by looking at the guests
+                // If the first guest is a known partner (from couples table), allow 1 additional guest
+                // If no partner, allow only 1 guest total
+                const hasPartner = guestsData.guests.length > 0;
+                
+                // Try to determine if first guest is a partner by checking if they're a known couple
+                if (hasPartner) {
+                    // Check if first guest is a registered partner
+                    const firstGuest = guestsData.guests[0];
+                    try {
+                        const partnerCheckResponse = await fetch(`/api/partner?firstName=${encodeURIComponent(submissionData.first_name)}&lastName=${encodeURIComponent(submissionData.last_name)}`);
+                        if (partnerCheckResponse.ok) {
+                            const partnerData = await partnerCheckResponse.json();
+                            const isFirstGuestPartner = partnerData.firstName.toLowerCase() === firstGuest.first_name.toLowerCase() && 
+                                                      partnerData.lastName.toLowerCase() === firstGuest.last_name.toLowerCase();
+                            
+                            if (isFirstGuestPartner) {
+                                // Has registered partner - can have 1 additional guest (total 2: partner + 1 guest)
+                                maxAllowedGuests = 2;
+                            } else {
+                                // First guest is not a registered partner - only 1 guest allowed
+                                maxAllowedGuests = 1;
+                            }
+                        } else {
+                            // No registered partner found - only 1 guest allowed
+                            maxAllowedGuests = 1;
+                        }
+                    } catch (error) {
+                        // Error checking partner - default to 1 guest
+                        maxAllowedGuests = 1;
+                    }
+                } else {
+                    // No guests at all - allow 1 guest
+                    maxAllowedGuests = 1;
+                }
                 
                 // Add all guests returned by the API (includes both regular guests and partners)
                 guestsData.guests.forEach(guest => {
@@ -168,8 +290,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Error loading previous guests:', error);
-            // Set default even on error
-            maxAllowedGuests = 2;
+            // Set default to 1 guest on error (conservative approach)
+            maxAllowedGuests = 1;
         }
     }
 
@@ -253,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 try {
                     // Step 1: Check if person is invited
-                    const invitationResponse = await fetch(`http://localhost:3000/api/check-invitation?firstName=${encodeURIComponent(firstNameInput.value)}&lastName=${encodeURIComponent(lastNameInput.value)}`);
+                    const invitationResponse = await fetch(`/api/check-invitation?firstName=${encodeURIComponent(firstNameInput.value)}&lastName=${encodeURIComponent(lastNameInput.value)}`);
                     
                     if (!invitationResponse.ok) {
                         const invitationError = await invitationResponse.json();
@@ -280,17 +402,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     // Step 3: Person is invited and hasn't submitted yet, check for partner
-                    const partnerResponse = await fetch(`http://localhost:3000/api/partner?firstName=${encodeURIComponent(firstNameInput.value)}&lastName=${encodeURIComponent(lastNameInput.value)}`);
+                    const partnerResponse = await fetch(`/api/partner?firstName=${encodeURIComponent(firstNameInput.value)}&lastName=${encodeURIComponent(lastNameInput.value)}`);
                     
-                    // Everyone gets maximum 2 guests
-                    maxAllowedGuests = 2;
+                    console.log('Partner response status:', partnerResponse.status); // Debug log
                     
                     if (partnerResponse.ok) {
                         const partner = await partnerResponse.json();
-                        // For known couples, pre-fill their partner
+                        console.log('Partner data received:', partner); // Debug log
+                        // For known couples, set guest limit first, then pre-fill their partner
+                        maxAllowedGuests = 2; // Partner + 1 additional guest
                         createGuestEntry(partner.firstName, partner.lastName);
+                        console.log('Partner added, maxAllowedGuests set to:', maxAllowedGuests); // Debug log
+                    } else {
+                        console.log('No partner found, setting maxAllowedGuests to 1'); // Debug log
+                        // For people without registered partner, allow only 1 guest
+                        maxAllowedGuests = 1;
                     }
-                    // For people without partner suggestions, they can still add 2 guests manually
                 } catch (error) {
                     console.error('Error checking invitation or partner:', error);
                     nameError.textContent = 'An error occurred while validating your invitation. Please try again.';
@@ -432,7 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // The backend endpoint URL
-                const endpoint = 'http://localhost:3000/api/rsvp';
+                const endpoint = '/api/rsvp';
                 console.log('Sending request to:', endpoint); // Debug log
 
                 const response = await fetch(endpoint, {

@@ -1,0 +1,18 @@
+runtime: nodejs20
+
+env_variables:
+  NODE_ENV: production
+  DATABASE_URL: "postgresql://postgres:WeddingDB2025!@/wedding_rsvp?host=/cloudsql/angelic-archery-465922-b6:europe-west10:wedding&sslmode=disable"
+
+beta_settings:
+  cloud_sql_instances: angelic-archery-465922-b6:europe-west10:wedding
+
+automatic_scaling:
+  min_instances: 0
+  max_instances: 10
+  target_cpu_utilization: 0.6
+
+handlers:
+  - url: /.*
+    script: auto
+    secure: always

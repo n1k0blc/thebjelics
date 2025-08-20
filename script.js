@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Password Protection ---
+    // --- Configuration ---
     const CORRECT_PASSWORD = 'Nadja&Niko';
     const PASSWORD_COOKIE_NAME = 'wedding_access';
     const PASSWORD_COOKIE_DURATION = 30; // days
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             passwordError.classList.remove('show');
         } else {
             // Incorrect password
-            passwordError.textContent = 'Incorrect password. Please try again.';
+            passwordError.textContent = 'Falsches Passwort. Bitte versuchen Sie es erneut.';
             passwordError.classList.add('show');
             passwordInput.value = '';
             passwordInput.focus();
@@ -145,6 +145,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
         return re.test(String(email).toLowerCase());
     }
+    
+    // --- Message Translation Helper ---
+    function translateMessage(message) {
+        if (!message) return message;
+        
+        // Translation mappings for server messages
+        const translations = {
+            'Sorry, this name is not on our guest list.': 'Entschuldigung, dieser Name steht nicht auf unserer Gästeliste.',
+            'Thank you! Your RSVP has been submitted successfully.': 'Vielen Dank! Ihr RSVP wurde erfolgreich übermittelt.',
+        };
+        
+        // Handle dynamic messages with patterns
+        if (message.includes('Changes can only be made by the main contact:')) {
+            // Extract the name from the message
+            const nameMatch = message.match(/Changes can only be made by the main contact: ([^.]+)\./);
+            if (nameMatch) {
+                const contactName = nameMatch[1];
+                return `Änderungen können nur vom Hauptkontakt vorgenommen werden: ${contactName}. Bitte kontaktieren Sie diese Person, um Änderungen an Ihrem RSVP vorzunehmen.`;
+            }
+        }
+        
+        // Direct translation lookup
+        return translations[message] || message;
+    }
     // --- Guest Management ---
     let guestCount = 0;
     let maxAllowedGuests = 0; // This will be set dynamically
@@ -162,11 +186,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const guestEntry = document.createElement('div');
         guestEntry.classList.add('guest-entry');
         guestEntry.innerHTML = `
-            <button type="button" class="remove-guest-btn" title="Remove Guest">&times;</button>
-            <label>Guest Name <em>(required)</em></label>
+            <button type="button" class="remove-guest-btn" title="Gast entfernen">&times;</button>
+            <label>Gastname <em>(erforderlich)</em></label>
             <div class="name-fields">
-                <input type="text" name="guest-first-name-${guestCount}" placeholder="First Name" value="${firstName}" required>
-                <input type="text" name="guest-last-name-${guestCount}" placeholder="Last Name" value="${lastName}" required>
+                <input type="text" name="guest-first-name-${guestCount}" placeholder="Vorname" value="${firstName}" required>
+                <input type="text" name="guest-last-name-${guestCount}" placeholder="Nachname" value="${lastName}" required>
             </div>
         `;
         guestListContainer.appendChild(guestEntry);
@@ -198,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showSuccessMessage() {
         const formMessage = document.getElementById('form-message');
-        formMessage.textContent = 'Thank you! Your RSVP has been submitted successfully.';
+        formMessage.textContent = 'Vielen Dank! Ihr RSVP wurde erfolgreich übermittelt.';
         formMessage.className = 'form-message success';
         steps.forEach(step => step.style.display = 'none');
         document.getElementById('submit-button').style.display = 'none';
@@ -338,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentFields = currentStepElement.querySelectorAll('[required]');
             const isValid = Array.from(currentFields).every(field => field.value.trim() !== '');
             if (!isValid) {
-                alert('Please fill out all required fields.');
+                alert('Bitte füllen Sie alle erforderlichen Felder aus.');
                 return;
             }
 
@@ -350,11 +374,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Perform validation
                 if (!firstNameInput.value.trim() || !lastNameInput.value.trim()) {
-                    nameError.textContent = 'First and last name are required.';
+                    nameError.textContent = 'Vor- und Nachname sind erforderlich.';
                     return;
                 }
                 if (!validateName(firstNameInput.value) || !validateName(lastNameInput.value)) {
-                    nameError.textContent = 'Names can only contain letters, spaces, and hyphens.';
+                    nameError.textContent = 'Namen dürfen nur Buchstaben, Leerzeichen und Bindestriche enthalten.';
                     return;
                 }
                 nameError.textContent = ''; // Clear error on success
@@ -379,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     if (!invitationResponse.ok) {
                         const invitationError = await invitationResponse.json();
-                        nameError.textContent = invitationError.message || 'Sorry, this name is not on our guest list.';
+                        nameError.textContent = translateMessage(invitationError.message) || 'Entschuldigung, dieser Name steht nicht auf unserer Gästeliste.';
                         return;
                     }
 
@@ -390,7 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Check if person can edit (is main contact)
                         if (invitationData.canEdit === false) {
                             // Person is not the main contact, show error message
-                            nameError.textContent = invitationData.message;
+                            nameError.textContent = translateMessage(invitationData.message);
                             nameError.style.color = '#ff0000';
                             return;
                         }
@@ -420,7 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } catch (error) {
                     console.error('Error checking invitation or partner:', error);
-                    nameError.textContent = 'An error occurred while validating your invitation. Please try again.';
+                    nameError.textContent = 'Ein Fehler ist beim Validieren Ihrer Einladung aufgetreten. Bitte versuchen Sie es erneut.';
                     return;
                 }
             }
@@ -445,7 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             if (!validateEmail(emailInput.value)) {
-                emailError.textContent = 'Please enter a valid email address.';
+                emailError.textContent = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
                 emailError.style.color = '#ff0000';
             } else {
                 emailError.textContent = '';
@@ -477,11 +501,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Email validation
             if (!emailInput.value.trim()) {
-                emailError.textContent = 'Email address is required.';
+                emailError.textContent = 'E-Mail-Adresse ist erforderlich.';
                 emailError.style.color = '#ff0000';
                 hasValidationErrors = true;
             } else if (!validateEmail(emailInput.value)) {
-                emailError.textContent = 'Please enter a valid email address.';
+                emailError.textContent = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
                 emailError.style.color = '#ff0000';
                 hasValidationErrors = true;
             } else {
@@ -490,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Attending validation
             if (!isAttending) {
-                formMessage.textContent = 'Please select whether you will be attending.';
+                formMessage.textContent = 'Bitte wählen Sie aus, ob Sie teilnehmen werden.';
                 formMessage.className = 'form-message error';
                 hasValidationErrors = true;
             }
@@ -510,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (hasGuestErrors) {
-                formMessage.textContent = 'Please fill out all guest names correctly (letters, spaces, and hyphens only).';
+                formMessage.textContent = 'Bitte füllen Sie alle Gastnamen korrekt aus (nur Buchstaben, Leerzeichen und Bindestriche sind erlaubt).';
                 formMessage.className = 'form-message error';
                 hasValidationErrors = true;
             }
@@ -554,7 +578,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Disable button and clear previous messages
             submitButton.disabled = true;
-            submitButton.textContent = 'SENDING...';
+            submitButton.textContent = 'SENDEN...';
             formMessage.className = 'form-message'; // Reset the message
 
             try {
@@ -578,20 +602,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // --- Success Path ---
-                formMessage.textContent = responseData.message;
+                formMessage.textContent = translateMessage(responseData.message) || 'Vielen Dank! Ihr RSVP wurde erfolgreich übermittelt.';
                 formMessage.classList.add('success');
                 steps.forEach(step => step.style.display = 'none');
                 submitButton.style.display = 'none';
             } catch (error) {
                 // --- Error Path ---
                 console.error('Submission Error:', error.message);
-                formMessage.textContent = error.message;
+                formMessage.textContent = translateMessage(error.message);
                 formMessage.classList.add('error');
             } finally {
                 // This runs after success or error to re-enable the button if it's still visible.
                 if (submitButton.style.display !== 'none') {
                     submitButton.disabled = false;
-                    submitButton.textContent = 'SEND';
+                    submitButton.textContent = 'SENDEN';
                 }
             }
         });

@@ -506,7 +506,7 @@ body.content-light .menu a:hover {
 }
 
 .banner hr {
-  border: 0.5px solid black;
+  border: 1px solid black;
   /* full-bleed line across the viewport */
   width: auto;
   margin: 1rem 0 1.5rem;
@@ -604,7 +604,7 @@ body.content-light .menu a:hover {
 
 .section-divider {
   width: 100%;
-  height: 0.5px;
+  height: 1px;
   background-color: black;
   border: none;
   margin: auto;
@@ -663,6 +663,11 @@ body.content-light .menu a:hover {
   line-height: 1.6;
 }
 
+.dresscode-bold {
+  font-weight: bold !important;
+  font-family: 'Lora', serif !important;
+}
+
 #FAQ {
   background-color: #f7f6f4;
   color: #111;
@@ -700,6 +705,8 @@ body.content-light .menu a:hover {
 
 .faq-box h2 {
   text-align: center;
+  font-weight: 600;
+  font-size: 1.2rem;
 }
 
 .faq-box p {
@@ -783,29 +790,6 @@ body.content-light .menu a:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 1s ease forwards;
-}
-
-.icon-item:nth-child(1) {
-  animation-delay: 0.8s;
-}
-.icon-item:nth-child(2) {
-  animation-delay: 1.6s;
-}
-.icon-item:nth-child(3) {
-  animation-delay: 3.2s;
-}
-.icon-item:nth-child(4) {
-  animation-delay: 4.0s;
-}
-
-@keyframes fadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .travel-back-button {
@@ -1320,7 +1304,7 @@ body.content-light .menu a:hover {
 }
 
 .travel-header-row .banner hr {
-  border: 0.5px solid black;
+  border: 1px solid black;
   width: 100vw;
   margin: 1rem calc(50% - 50vw) 1.5rem;
 }
@@ -1354,7 +1338,7 @@ body.content-light .menu a:hover {
 .travel-header-row .banner.is-fixed hr {
   display: block;
   margin: 0.25rem calc(50% - 50vw) 0;   /* minimaler Abstand */
-  border: 0.5px solid black;
+  border: 1px solid black;
   width: 100vw;
 }
 
@@ -1391,7 +1375,7 @@ body.content-light .menu a:hover {
 }
 
 .gallery-header-row .banner hr {
-  border: 0.5px solid black;
+  border: 1px solid black;
   width: 100vw;
   margin: 1rem calc(50% - 50vw) 1.5rem;
 }
@@ -1425,7 +1409,7 @@ body.content-light .menu a:hover {
 .gallery-header-row .banner.is-fixed hr {
   display: block;
   margin: 0.25rem calc(50% - 50vw) 0;   /* minimaler Abstand */
-  border: 0.5px solid black;
+  border: 1px solid black;
   width: 100vw;
 }
 

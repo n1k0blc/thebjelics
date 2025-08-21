@@ -352,6 +352,23 @@ document.addEventListener('DOMContentLoaded', () => {
         showSuccessMessage();
     });
 
+    // --- Prevent Enter key from submitting form in early steps ---
+    rsvpForm.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            const currentStep = rsvpForm.querySelector('.form-step.visible');
+            const isLastStep = currentStep && currentStep.id === 'step-3';
+            
+            if (!isLastStep) {
+                event.preventDefault();
+                // Trigger the next button click instead
+                const nextBtn = currentStep.querySelector('.next-btn');
+                if (nextBtn) {
+                    nextBtn.click();
+                }
+            }
+        }
+    });
+
     // --- Step Navigation ---
     nextBtns.forEach((button, index) => {
         button.addEventListener('click', async () => {
@@ -445,6 +462,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 } catch (error) {
                     console.error('Error checking invitation or partner:', error);
                     nameError.textContent = 'Ein Fehler ist beim Validieren Ihrer Einladung aufgetreten. Bitte versuchen Sie es erneut.';
+                    return;
+                }
+            }
+
+            // Logic for Step 2 -> Step 3 (validate guests)
+            if (index === 1) {
+                const firstName = document.getElementById('first-name').value;
+                const lastName = document.getElementById('last-name').value;
+                const guestEntries = document.querySelectorAll('.guest-entry');
+                const formMessage = document.getElementById('form-message');
+
+                // Clear any previous messages
+                formMessage.textContent = '';
+                formMessage.className = 'form-message';
+
+                // Collect guest data
+                const guests = [];
+                guestEntries.forEach(entry => {
+                    const guestFirstName = entry.querySelector('input[name^="guest-first-name"]').value;
+                    const guestLastName = entry.querySelector('input[name^="guest-last-name"]').value;
+                    if (guestFirstName.trim() && guestLastName.trim()) {
+                        guests.push({ firstName: guestFirstName, lastName: guestLastName });
+                    }
+                });
+
+                // Validate guest data with backend
+                try {
+                    const response = await fetch('/api/validate-guests', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            primaryGuest: { firstName, lastName },
+                            guests
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        formMessage.textContent = translateMessage(errorData.message) || 'Fehler bei der Gast-Validierung.';
+                        formMessage.className = 'form-message error';
+                        return; // Stop here if validation fails
+                    }
+                } catch (error) {
+                    console.error('Error validating guests:', error);
+                    formMessage.textContent = 'Ein Fehler ist bei der Gast-Validierung aufgetreten. Bitte versuchen Sie es erneut.';
+                    formMessage.className = 'form-message error';
                     return;
                 }
             }

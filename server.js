@@ -259,6 +259,130 @@ app.get('/api/partner', async (req, res) => {
   }
 });
 
+// --- Guest Validation Endpoint (for Step 2 -> Step 3 validation) ---
+app.post('/api/validate-guests', async (req, res) => {
+  const { primaryGuest, guests } = req.body;
+  
+  if (!primaryGuest || !primaryGuest.firstName || !primaryGuest.lastName) {
+    return res.status(400).json({ message: 'Primärer Gast ist erforderlich.' });
+  }
+
+  let client;
+
+  try {
+    client = await pool.connect();
+
+    console.log('Guest validation request:', { primaryGuest, guests }); // Debug log
+
+    // Check if this person has a known partner (from couples table)
+    const partnerQuery = `
+      SELECT person1_first_name, person1_last_name, person2_first_name, person2_last_name
+      FROM couples
+      WHERE (LOWER(person1_first_name) = LOWER($1) AND LOWER(person1_last_name) = LOWER($2))
+         OR (LOWER(person2_first_name) = LOWER($1) AND LOWER(person2_last_name) = LOWER($2));
+    `;
+    const partnerResult = await client.query(partnerQuery, [primaryGuest.firstName, primaryGuest.lastName]);
+    const hasKnownPartner = partnerResult.rows.length > 0;
+
+    console.log('Has known partner:', hasKnownPartner); // Debug log
+
+    // Determine guest limits
+    const maxGuestsAllowed = hasKnownPartner ? 2 : 1;
+    const guestsList = guests || [];
+    
+    console.log('Max guests allowed:', maxGuestsAllowed, 'Actual guests:', guestsList.length); // Debug log
+    
+    // Check guest count
+    if (guestsList.length > maxGuestsAllowed) {
+      return res.status(400).json({ 
+        message: hasKnownPartner 
+          ? `Du kannst maximal ${maxGuestsAllowed} Gäste hinzufügen (deinen Partner und einen weiteren Gast).`
+          : `Du kannst maximal ${maxGuestsAllowed} Gast hinzufügen.`
+      });
+    }
+
+    // Validate all guests are on the invitation list (only for people with known partners)
+    if (hasKnownPartner && guestsList.length > 0) {
+      // For people with known partners, we need to check which guests are additional (not the partner)
+      let partnerName = null;
+      if (partnerResult.rows.length > 0) {
+        const couple = partnerResult.rows[0];
+        if (primaryGuest.firstName.toLowerCase() === couple.person1_first_name.toLowerCase() && 
+            primaryGuest.lastName.toLowerCase() === couple.person1_last_name.toLowerCase()) {
+          partnerName = { 
+            firstName: couple.person2_first_name, 
+            lastName: couple.person2_last_name 
+          };
+        } else {
+          partnerName = { 
+            firstName: couple.person1_first_name, 
+            lastName: couple.person1_last_name 
+          };
+        }
+      }
+
+      // Filter out the known partner from guests list for validation
+      const additionalGuests = guestsList.filter(guest => {
+        if (partnerName) {
+          return !(guest.firstName.toLowerCase() === partnerName.firstName.toLowerCase() && 
+                   guest.lastName.toLowerCase() === partnerName.lastName.toLowerCase());
+        }
+        return true;
+      });
+
+      console.log('Additional guests to validate (excluding partner):', additionalGuests); // Debug log
+
+      // Only validate additional guests (beyond partner) - they must be invited
+      for (const guest of additionalGuests) {
+        console.log('Validating additional guest:', guest.firstName, guest.lastName); // Debug log
+
+        const invitedGuestQuery = `
+          SELECT id FROM rsvps 
+          WHERE LOWER(first_name) = LOWER($1) AND LOWER(last_name) = LOWER($2)
+          LIMIT 1
+        `;
+        const invitedGuestResult = await client.query(invitedGuestQuery, [guest.firstName, guest.lastName]);
+        
+        console.log('Additional guest validation result for', guest.firstName, guest.lastName, ':', invitedGuestResult.rows.length); // Debug log
+        
+        if (invitedGuestResult.rows.length === 0) {
+          // Guest is not invited - return error
+          return res.status(400).json({ 
+            message: `${guest.firstName} ${guest.lastName} ist nicht auf der Gästeliste und kann daher nicht hinzugefügt werden. Nur eingeladene Personen können als zusätzliche Gäste eingetragen werden.`
+          });
+        }
+      }
+    }
+
+    // For people without known partners: No validation needed - they can add anyone
+    console.log('Guest validation logic completed. HasKnownPartner:', hasKnownPartner); // Debug log
+
+    // Check for duplicate guests
+    if (guestsList.length > 1) {
+      const guestNames = guestsList.map(g => `${g.firstName.toLowerCase()}_${g.lastName.toLowerCase()}`);
+      const uniqueNames = [...new Set(guestNames)];
+      if (guestNames.length !== uniqueNames.length) {
+        return res.status(400).json({ 
+          message: 'Doppelte Gäste sind nicht erlaubt. Bitte entferne duplizierte Namen.'
+        });
+      }
+    }
+
+    console.log('Guest validation passed'); // Debug log
+
+    // If we reach here, validation passed
+    res.status(200).json({ message: 'Gäste-Validierung erfolgreich.' });
+
+  } catch (error) {
+    console.error('Error during guest validation:', error);
+    res.status(500).json({ message: 'Ein Fehler ist bei der Gast-Validierung aufgetreten.' });
+  } finally {
+    if (client) {
+      client.release();
+    }
+  }
+});
+
 // --- API Routes ---
 app.post('/api/rsvp', async (req, res) => {
   // Destructure all expected fields from the request body
@@ -287,6 +411,64 @@ app.post('/api/rsvp', async (req, res) => {
     // Start a database transaction
     await client.query('BEGIN');
 
+    // Check if this person has a known partner (from couples table)
+    const partnerQuery = `
+      SELECT person1_first_name, person1_last_name, person2_first_name, person2_last_name
+      FROM couples
+      WHERE (LOWER(person1_first_name) = LOWER($1) AND LOWER(person1_last_name) = LOWER($2))
+         OR (LOWER(person2_first_name) = LOWER($1) AND LOWER(person2_last_name) = LOWER($2));
+    `;
+    const partnerResult = await client.query(partnerQuery, [firstName, lastName]);
+    const hasKnownPartner = partnerResult.rows.length > 0;
+
+    // If person has a known partner, validate that additional guests are invited
+    if (hasKnownPartner && guests && guests.length > 0) {
+      let partnerName = null;
+      if (partnerResult.rows.length > 0) {
+        const couple = partnerResult.rows[0];
+        if (firstName.toLowerCase() === couple.person1_first_name.toLowerCase() && 
+            lastName.toLowerCase() === couple.person1_last_name.toLowerCase()) {
+          partnerName = { 
+            firstName: couple.person2_first_name, 
+            lastName: couple.person2_last_name 
+          };
+        } else {
+          partnerName = { 
+            firstName: couple.person1_first_name, 
+            lastName: couple.person1_last_name 
+          };
+        }
+      }
+
+      // Filter out the known partner from guests list for validation
+      const additionalGuests = guests.filter(guest => {
+        if (partnerName) {
+          return !(guest.firstName.toLowerCase() === partnerName.firstName.toLowerCase() && 
+                   guest.lastName.toLowerCase() === partnerName.lastName.toLowerCase());
+        }
+        return true;
+      });
+
+      // Validate that additional guests (beyond partner) are in the RSVP table
+      for (const guest of additionalGuests) {
+        const invitedGuestQuery = `
+          SELECT id FROM rsvps 
+          WHERE LOWER(first_name) = LOWER($1) AND LOWER(last_name) = LOWER($2)
+          LIMIT 1
+        `;
+        const invitedGuestResult = await client.query(invitedGuestQuery, [guest.firstName, guest.lastName]);
+        
+        if (invitedGuestResult.rows.length === 0) {
+          // Guest is not invited - return error
+          await client.query('ROLLBACK');
+          return res.status(400).json({ 
+            message: `${guest.firstName} ${guest.lastName} ist nicht auf der Gästeliste und kann daher nicht hinzugefügt werden. Nur eingeladene Personen können als zusätzliche Gäste eingetragen werden.`
+          });
+        }
+      }
+    }
+
+    // Continue with existing RSVP logic...
     // Check if main person already exists in database
     const existingMainQuery = `
       SELECT id, group_id FROM rsvps 
@@ -381,7 +563,7 @@ app.post('/api/rsvp', async (req, res) => {
 
     // Commit the transaction if all queries were successful
     await client.query('COMMIT');
-    res.status(201).json({ message: 'Thank you! Your RSVP has been submitted successfully.' });
+    res.status(201).json({ message: 'Vielen Dank! Deine RSVP wurde erfolgreich übermittelt.' });
   } catch (error) {
     // If any error occurs, roll back the transaction
     if (client) {
@@ -390,7 +572,7 @@ app.post('/api/rsvp', async (req, res) => {
     console.error('Error saving RSVP to database:', error);
 
     // For all errors, send a generic message
-    return res.status(500).json({ message: 'An error occurred while submitting your RSVP. Please try again.' });
+    return res.status(500).json({ message: 'Ein Fehler ist aufgetreten. Bitte versuche es erneut.' });
   } finally {
     // Release the client back to the pool
     if (client) {

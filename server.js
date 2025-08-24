@@ -368,6 +368,45 @@ app.post('/api/validate-guests', async (req, res) => {
       }
     }
 
+    // Check if any guest has already submitted an RSVP
+    for (const guest of guestsList) {
+      console.log('Checking if guest has already submitted RSVP:', guest.firstName, guest.lastName); // Debug log
+
+      const submittedGuestQuery = `
+        SELECT id, first_name, last_name, group_id FROM rsvps 
+        WHERE LOWER(first_name) = LOWER($1) AND LOWER(last_name) = LOWER($2)
+        AND submission_timestamp IS NOT NULL
+        LIMIT 1
+      `;
+      const submittedGuestResult = await client.query(submittedGuestQuery, [guest.firstName, guest.lastName]);
+      
+      if (submittedGuestResult.rows.length > 0) {
+        const submittedGuest = submittedGuestResult.rows[0];
+        
+        // Check if this guest belongs to the same group as the primary guest (edit mode)
+        const primaryGuestQuery = `
+          SELECT group_id FROM rsvps 
+          WHERE LOWER(first_name) = LOWER($1) AND LOWER(last_name) = LOWER($2)
+          AND submission_timestamp IS NOT NULL
+          LIMIT 1
+        `;
+        const primaryGuestResult = await client.query(primaryGuestQuery, [primaryGuest.firstName, primaryGuest.lastName]);
+        
+        // If primary guest has a group and submitted guest has same group, it's edit mode - allow it
+        if (primaryGuestResult.rows.length > 0 && 
+            primaryGuestResult.rows[0].group_id && 
+            submittedGuest.group_id === primaryGuestResult.rows[0].group_id) {
+          console.log('Guest belongs to same group - edit mode detected, allowing:', guest.firstName, guest.lastName); // Debug log
+          continue; // Skip validation for same-group guests
+        }
+        
+        console.log('Guest has already submitted RSVP:', guest.firstName, guest.lastName); // Debug log
+        return res.status(400).json({ 
+          message: `${guest.firstName} ${guest.lastName} hat bereits eine eigene RSVP eingereicht und kann daher nicht als Gast hinzugefügt werden.`
+        });
+      }
+    }
+
     console.log('Guest validation passed'); // Debug log
 
     // If we reach here, validation passed
@@ -411,7 +450,47 @@ app.post('/api/rsvp', async (req, res) => {
     // Start a database transaction
     await client.query('BEGIN');
 
-    // Check if this person has a known partner (from couples table)
+    console.log('RSVP submission - Final validation for:', { firstName, lastName, guests }); // Debug log
+
+    // --- FINAL VALIDATION (Security against form manipulation) ---
+    
+    // 1. Validate name format for main person (no special characters)
+    const nameRegex = /^[a-zA-Z\u00C0-\u017F\s'-]+$/;
+    if (!nameRegex.test(firstName) || !nameRegex.test(lastName)) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ 
+        message: 'Namen dürfen nur Buchstaben, Leerzeichen und Bindestriche enthalten.'
+      });
+    }
+
+    // 2. Check if main person is on the guest list
+    const mainPersonQuery = `
+      SELECT id FROM rsvps 
+      WHERE LOWER(first_name) = LOWER($1) AND LOWER(last_name) = LOWER($2)
+      LIMIT 1
+    `;
+    const mainPersonResult = await client.query(mainPersonQuery, [firstName, lastName]);
+    
+    if (mainPersonResult.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ 
+        message: 'Entschuldigung, dieser Name steht nicht auf unserer Gästeliste.'
+      });
+    }
+
+    // 3. Validate guest names (no special characters)
+    if (guests && guests.length > 0) {
+      for (const guest of guests) {
+        if (!nameRegex.test(guest.firstName) || !nameRegex.test(guest.lastName)) {
+          await client.query('ROLLBACK');
+          return res.status(400).json({ 
+            message: 'Gastnamen dürfen nur Buchstaben, Leerzeichen und Bindestriche enthalten.'
+          });
+        }
+      }
+    }
+
+    // 4. Check if this person has a known partner (determines validation rules for guests)
     const partnerQuery = `
       SELECT person1_first_name, person1_last_name, person2_first_name, person2_last_name
       FROM couples
@@ -421,8 +500,11 @@ app.post('/api/rsvp', async (req, res) => {
     const partnerResult = await client.query(partnerQuery, [firstName, lastName]);
     const hasKnownPartner = partnerResult.rows.length > 0;
 
-    // If person has a known partner, validate that additional guests are invited
+    console.log('Final validation - Has known partner:', hasKnownPartner); // Debug log
+
+    // 5. Apply guest validation rules based on partner status
     if (hasKnownPartner && guests && guests.length > 0) {
+      // For people with known partners: validate that additional guests (beyond partner) are invited
       let partnerName = null;
       if (partnerResult.rows.length > 0) {
         const couple = partnerResult.rows[0];
@@ -449,6 +531,8 @@ app.post('/api/rsvp', async (req, res) => {
         return true;
       });
 
+      console.log('Final validation - Additional guests to validate (excluding partner):', additionalGuests); // Debug log
+
       // Validate that additional guests (beyond partner) are in the RSVP table
       for (const guest of additionalGuests) {
         const invitedGuestQuery = `
@@ -466,9 +550,84 @@ app.post('/api/rsvp', async (req, res) => {
           });
         }
       }
+      
+      // For people with partners: also validate that all guests are on the invitation list
+      for (const guest of guests) {
+        const invitedGuestQuery = `
+          SELECT id FROM rsvps 
+          WHERE LOWER(first_name) = LOWER($1) AND LOWER(last_name) = LOWER($2)
+          LIMIT 1
+        `;
+        const invitedGuestResult = await client.query(invitedGuestQuery, [guest.firstName, guest.lastName]);
+        
+        if (invitedGuestResult.rows.length === 0) {
+          // Guest is not invited - return error
+          await client.query('ROLLBACK');
+          return res.status(400).json({ 
+            message: `${guest.firstName} ${guest.lastName} ist nicht auf der Gästeliste und kann daher nicht hinzugefügt werden.`
+          });
+        }
+      }
+    }
+    
+    // For people without known partners: No guest validation needed (they can add anyone)
+    // Guest limit validation (already handled in frontend, but double-check here)
+    const maxGuestsAllowed = hasKnownPartner ? 2 : 1;
+    if (guests && guests.length > maxGuestsAllowed) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ 
+        message: hasKnownPartner 
+          ? `Du kannst maximal ${maxGuestsAllowed} Gäste hinzufügen (deinen Partner und einen weiteren Gast).`
+          : `Du kannst maximal ${maxGuestsAllowed} Gast hinzufügen.`
+      });
     }
 
-    // Continue with existing RSVP logic...
+    // 6. Check if any guest has already submitted an RSVP (prevents conflicts)
+    if (guests && guests.length > 0) {
+      for (const guest of guests) {
+        console.log('Final validation - Checking if guest has already submitted RSVP:', guest.firstName, guest.lastName); // Debug log
+
+        const submittedGuestQuery = `
+          SELECT id, first_name, last_name, group_id FROM rsvps 
+          WHERE LOWER(first_name) = LOWER($1) AND LOWER(last_name) = LOWER($2)
+          AND submission_timestamp IS NOT NULL
+          LIMIT 1
+        `;
+        const submittedGuestResult = await client.query(submittedGuestQuery, [guest.firstName, guest.lastName]);
+        
+        if (submittedGuestResult.rows.length > 0) {
+          const submittedGuest = submittedGuestResult.rows[0];
+          
+          // Check if this guest belongs to the same group as the main person (edit mode)
+          const mainPersonGroupQuery = `
+            SELECT group_id FROM rsvps 
+            WHERE LOWER(first_name) = LOWER($1) AND LOWER(last_name) = LOWER($2)
+            AND submission_timestamp IS NOT NULL
+            LIMIT 1
+          `;
+          const mainPersonGroupResult = await client.query(mainPersonGroupQuery, [firstName, lastName]);
+          
+          // If main person has a group and submitted guest has same group, it's edit mode - allow it
+          if (mainPersonGroupResult.rows.length > 0 && 
+              mainPersonGroupResult.rows[0].group_id && 
+              submittedGuest.group_id === mainPersonGroupResult.rows[0].group_id) {
+            console.log('Final validation - Guest belongs to same group - edit mode detected, allowing:', guest.firstName, guest.lastName); // Debug log
+            continue; // Skip validation for same-group guests
+          }
+          
+          console.log('Final validation - Guest has already submitted RSVP:', guest.firstName, guest.lastName); // Debug log
+          await client.query('ROLLBACK');
+          return res.status(400).json({ 
+            message: `${guest.firstName} ${guest.lastName} hat bereits eine eigene RSVP eingereicht und kann daher nicht als Gast hinzugefügt werden.`
+          });
+        }
+      }
+    }
+
+    console.log('Final validation passed - proceeding with RSVP submission'); // Debug log
+
+    // --- END FINAL VALIDATION ---
+
     // Check if main person already exists in database
     const existingMainQuery = `
       SELECT id, group_id FROM rsvps 
@@ -504,7 +663,63 @@ app.post('/api/rsvp', async (req, res) => {
 
       // Delete existing guests in this group (we'll re-add them) - only if group_id exists
       if (existingRecord.group_id) {
-        await client.query('DELETE FROM rsvps WHERE group_id = $1 AND is_main_contact = false', [existingRecord.group_id]);
+        // Reset all guests (non-main contacts) in this group to NULL instead of deleting them
+        const resetGuestsQuery = `
+          UPDATE rsvps 
+          SET email = NULL, attending = NULL, food_restrictions = NULL, song_request = NULL,
+              accommodation = NULL, arrival_date = NULL, comment = NULL, group_id = NULL, 
+              is_main_contact = true, submission_timestamp = NULL
+          WHERE group_id = $1 AND is_main_contact = false
+        `;
+        await client.query(resetGuestsQuery, [existingRecord.group_id]);
+      }
+
+      // Handle partner deletion in UPDATE mode: If person has a known partner but no guests, remove partner from DB
+      if (hasKnownPartner && (!guests || guests.length === 0)) {
+        // Get partner details
+        let partnerName = null;
+        if (partnerResult.rows.length > 0) {
+          const couple = partnerResult.rows[0];
+          if (firstName.toLowerCase() === couple.person1_first_name.toLowerCase() && 
+              lastName.toLowerCase() === couple.person1_last_name.toLowerCase()) {
+            partnerName = { 
+              firstName: couple.person2_first_name, 
+              lastName: couple.person2_last_name 
+            };
+          } else {
+            partnerName = { 
+              firstName: couple.person1_first_name, 
+              lastName: couple.person1_last_name 
+            };
+          }
+        }
+
+        if (partnerName) {
+          console.log('UPDATE mode: Partner found but not in guests list - resetting partner values to NULL and removing couple relationship:', partnerName); // Debug log
+          
+          // Reset partner values to NULL (but keep the person in the database)
+          const partnerUpdateQuery = `
+            UPDATE rsvps 
+            SET email = NULL, attending = NULL, food_restrictions = NULL, song_request = NULL,
+                accommodation = NULL, arrival_date = NULL, comment = NULL, group_id = NULL, 
+                is_main_contact = true, submission_timestamp = NULL
+            WHERE LOWER(first_name) = LOWER($1) AND LOWER(last_name) = LOWER($2)
+            AND submission_timestamp IS NOT NULL
+          `;
+          await client.query(partnerUpdateQuery, [partnerName.firstName, partnerName.lastName]);
+          
+          // Remove the couple relationship from couples table to prevent future partner suggestions
+          const deleteCoupleQuery = `
+            DELETE FROM couples 
+            WHERE (LOWER(person1_first_name) = LOWER($1) AND LOWER(person1_last_name) = LOWER($2))
+               OR (LOWER(person2_first_name) = LOWER($1) AND LOWER(person2_last_name) = LOWER($2))
+               OR (LOWER(person1_first_name) = LOWER($3) AND LOWER(person1_last_name) = LOWER($4))
+               OR (LOWER(person2_first_name) = LOWER($3) AND LOWER(person2_last_name) = LOWER($4))
+          `;
+          await client.query(deleteCoupleQuery, [firstName, lastName, partnerName.firstName, partnerName.lastName]);
+          
+          console.log('UPDATE mode: Couple relationship removed from couples table'); // Debug log
+        }
       }
     } else {
       // Person doesn't exist - CREATE new record
@@ -519,6 +734,54 @@ app.post('/api/rsvp', async (req, res) => {
       const rsvpValues = [firstName, lastName, email, isAttending, foodRestrictions, song, accommodation, arrivalDate || null, comment, groupId, true];
       const rsvpResult = await client.query(rsvpInsertQuery, rsvpValues);
       mainRsvpId = rsvpResult.rows[0].id;
+    }
+
+    // Handle partner deletion: If person has a known partner but no guests, remove partner from DB
+    if (hasKnownPartner && (!guests || guests.length === 0)) {
+      // Get partner details
+      let partnerName = null;
+      if (partnerResult.rows.length > 0) {
+        const couple = partnerResult.rows[0];
+        if (firstName.toLowerCase() === couple.person1_first_name.toLowerCase() && 
+            lastName.toLowerCase() === couple.person1_last_name.toLowerCase()) {
+          partnerName = { 
+            firstName: couple.person2_first_name, 
+            lastName: couple.person2_last_name 
+          };
+        } else {
+          partnerName = { 
+            firstName: couple.person1_first_name, 
+            lastName: couple.person1_last_name 
+          };
+        }
+      }
+
+      if (partnerName) {
+        console.log('First submit: Partner found but not in guests list - resetting partner values and removing couple relationship:', partnerName); // Debug log
+        
+        // Reset partner values to NULL (but keep the person in the database)
+        const partnerUpdateQuery = `
+          UPDATE rsvps 
+          SET email = NULL, attending = NULL, food_restrictions = NULL, song_request = NULL,
+              accommodation = NULL, arrival_date = NULL, comment = NULL, group_id = NULL, 
+              is_main_contact = true, submission_timestamp = NULL
+          WHERE LOWER(first_name) = LOWER($1) AND LOWER(last_name) = LOWER($2)
+          AND submission_timestamp IS NOT NULL
+        `;
+        await client.query(partnerUpdateQuery, [partnerName.firstName, partnerName.lastName]);
+        
+        // Remove the couple relationship from couples table to prevent future partner suggestions
+        const deleteCoupleQuery = `
+          DELETE FROM couples 
+          WHERE (LOWER(person1_first_name) = LOWER($1) AND LOWER(person1_last_name) = LOWER($2))
+             OR (LOWER(person2_first_name) = LOWER($1) AND LOWER(person2_last_name) = LOWER($2))
+             OR (LOWER(person1_first_name) = LOWER($3) AND LOWER(person1_last_name) = LOWER($4))
+             OR (LOWER(person2_first_name) = LOWER($3) AND LOWER(person2_last_name) = LOWER($4))
+        `;
+        await client.query(deleteCoupleQuery, [firstName, lastName, partnerName.firstName, partnerName.lastName]);
+        
+        console.log('Couple relationship removed from couples table'); // Debug log
+      }
     }
 
     // Handle guests - check each guest individually

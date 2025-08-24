@@ -789,14 +789,14 @@ body.content-light .menu a:hover {
   max-width: 1200px;
   margin: 4rem auto;
   padding: 0 2rem;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 3rem;
 }
 
 .travel-section {
   text-align: left;
-  padding: 2rem;
+  padding: 2rem 0;
 }
 
 .travel-section h2 {
@@ -816,10 +816,18 @@ body.content-light .menu a:hover {
   text-align: justify;
 }
 
+.travel-section ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.travel-section li {
+  margin-bottom: 0.5rem;
+}
+
 /* Responsive Design für Travel Sections */
 @media (max-width: 768px) {
   .travel-sections {
-    grid-template-columns: 1fr;
     gap: 2rem;
     padding: 0 1rem;
   }
@@ -1018,7 +1026,7 @@ body.content-light .menu a:hover {
 
 /* RSVP form styles */
 .rsvp-title {
-  font-size: 2.2rem;
+  font-size: 3rem;
   font-weight: 400;
   margin-bottom: 1rem;
 }

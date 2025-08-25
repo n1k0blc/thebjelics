@@ -67,7 +67,7 @@ ALTER SEQUENCE couples_id_seq RESTART WITH 1;
 
 INSERT INTO couples (id, person1_first_name, person1_last_name, person2_first_name, person2_last_name) VALUES
 (1, 'Branko', 'Bjelic', 'Jadranka', 'Bjelic'),
-(10, 'Frederick', 'Faller', 'Janine', 'von Collas'),
+(10, 'Frederik', 'Faller', 'Janine', 'von Collas'),
 (11, 'Tabea', 'Huber', 'Jan', 'Schneider'),
 (12, 'Maik', 'Henrich', 'Birgit', ''),
 (13, 'Isabel', 'Schäfer', 'Eric', 'Schäfer'),

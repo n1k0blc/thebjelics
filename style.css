@@ -661,6 +661,7 @@ body.content-light .menu a:hover {
 .dresscode-text p {
   font-size: 1.1rem;
   line-height: 1.6;
+  font-weight: 400;
 }
 
 .dresscode-bold {
@@ -781,21 +782,22 @@ body.content-light .menu a:hover {
   font-size: 1.1rem;
   line-height: 1.6;
   margin-bottom: 1.5rem;
-  text-align: justify;
+  text-align: center;
+  font-weight: 400;
+  font-family: 'Lora', serif;
 }
 
 /* Travel Sections */
 .travel-sections {
-  max-width: 1200px;
+  max-width: 80%;
   margin: 4rem auto;
-  padding: 0 2rem;
   display: flex;
   flex-direction: column;
   gap: 3rem;
 }
 
 .travel-section {
-  text-align: left;
+  text-align: center;
   padding: 2rem 0;
 }
 
@@ -807,13 +809,25 @@ body.content-light .menu a:hover {
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.1rem;
+  font-family: 'Lora', serif;
+}
+
+.travel-section h3 {
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: #111;
+  margin-bottom: 0.8rem;
+  margin-top: 1.5rem;
+  font-family: 'Lora', serif;
 }
 
 .travel-section p {
-  font-size: 1rem;
+  font-size: 1.1rem;
   line-height: 1.6;
   color: #111;
-  text-align: justify;
+  text-align: center;
+  font-weight: 400;
+  font-family: 'Lora', serif;
 }
 
 .travel-section ul {
@@ -823,13 +837,27 @@ body.content-light .menu a:hover {
 
 .travel-section li {
   margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #111;
+  text-align: center;
+  font-weight: 400;
+  font-family: 'Lora', serif;
+}
+
+.travel-section li a {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #111;
+  text-decoration: underline;
+  font-weight: bold;
+  font-family: 'Lora', serif;
 }
 
 /* Responsive Design für Travel Sections */
 @media (max-width: 768px) {
   .travel-sections {
     gap: 2rem;
-    padding: 0 1rem;
   }
 }
 
@@ -978,9 +1006,12 @@ body.content-light .menu a:hover {
 .activity-text {
   max-width: 80%;
   margin: 1rem auto 1rem auto;
-  text-align: justify;
-  font-size: 1rem;
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.6;
   color: black;
+  font-weight: 400;
+  font-family: 'Lora', serif;
 }
 @media (max-height: 500px) and (orientation: landscape) {
   .countdown {
@@ -1032,11 +1063,21 @@ body.content-light .menu a:hover {
 }
 
 .rsvp-subtitle {
-  font-size: 1rem;
-  font-weight: 300;
+  font-size: 1.1rem;
+  font-weight: 400;
+  line-height: 1.6;
   margin-bottom: 2rem;
   max-width: 700px;
   text-align: center;
+  font-family: 'Lora', serif;
+}
+
+#rsvp p {
+  font-size: 1.1rem;
+  font-weight: 400;
+  line-height: 1.6;
+  text-align: center;
+  font-family: 'Lora', serif;
 }
 
 .rsvp-form {

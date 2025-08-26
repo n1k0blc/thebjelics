@@ -1,5 +1,5 @@
 (function(){
-  const targetDate = new Date('2026-03-11T00:00:00').getTime();
+  const targetDate = new Date('2026-03-11T17:00:00').getTime();
 
   function pad2(n){ return String(n).padStart(2,'0'); }
 

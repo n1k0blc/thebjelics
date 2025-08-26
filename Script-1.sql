@@ -60,7 +60,8 @@ INSERT INTO rsvps (first_name, last_name) VALUES
 ('Marvin', 'Henrich'),
 ('Henrik', 'Losch'),
 ('Corwin', 'Jungjohann'),
-('Alina', 'Grigorjan');
+('Alina', 'Grigorjan'),
+('Big', 'Dick');
 
 DELETE FROM Couples;
 ALTER SEQUENCE couples_id_seq RESTART WITH 1;

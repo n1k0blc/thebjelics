@@ -423,7 +423,9 @@ body.content-light .menu a:hover {
 
 .event-item img {
   width: 100%;
-  height: auto;
+  height: 350px;
+  object-fit: cover;
+  object-position: center;
 }
 
 .event-item h2 {
@@ -1283,6 +1285,29 @@ body.content-light .menu a:hover {
   margin-right: 0.25em;       /* leichter Abstand zu "NIKO" */
 }
 
+/* Gallery Info Section */
+.gallery-info {
+  text-align: center;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #ddd;
+}
+
+.gallery-info p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  font-family: 'Lora', serif;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.gallery-button-wrapper {
+  margin-top: 2rem;
+  text-align: center;
+}
+
 /* Scroll to Top Button */
 .scroll-to-top {
   position: fixed;
@@ -1559,12 +1584,22 @@ body.content-light .menu a:hover {
 
 .gallery-description p {
   font-family: 'Lora', serif;
-  font-size: 1.1rem;
+  font-size: 1.8rem;
   font-weight: 400;
   line-height: 1.8;
   color: #333;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.gallery-description .impressionist-words {
+  font-family: 'The Impressionist';
+  font-size: 2rem;
+  font-style: italic;
+  line-height: 1;
+  vertical-align: baseline;
+  position: relative;
+  top: 0.3em; /* optische Feinjustierung - können Sie anpassen */
+  display: inline-block;
 }
 
 /* Gallery Grid - 2 Spalten */

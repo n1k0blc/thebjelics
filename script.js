@@ -146,6 +146,115 @@ document.addEventListener('DOMContentLoaded', () => {
         return re.test(String(email).toLowerCase());
     }
     
+    // --- Easter Egg Functions ---
+    function createConfetti() {
+        const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#f368e0'];
+        
+        for (let i = 0; i < 50; i++) {
+            setTimeout(() => {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.cssText = `
+                    position: fixed;
+                    width: 10px;
+                    height: 10px;
+                    background-color: ${colors[Math.floor(Math.random() * colors.length)]};
+                    left: ${Math.random() * 100}vw;
+                    top: -10px;
+                    z-index: 10000;
+                    pointer-events: none;
+                    border-radius: 50%;
+                    animation: confetti-fall 3s linear forwards;
+                `;
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }, i * 50);
+        }
+    }
+    
+    function showEasterEggModal() {
+        // Create modal if it doesn't exist
+        let modal = document.getElementById('easter-egg-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'easter-egg-modal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.8);
+                z-index: 10001;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background-color: white;
+                padding: 2rem;
+                border-radius: 10px;
+                text-align: center;
+                max-width: 500px;
+                margin: 2rem;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            `;
+            
+            modalContent.innerHTML = `
+                <h3 style="color: #333; margin-bottom: 1rem; font-family: 'Lora', serif;">🎉 Easter Egg gefunden! 🎉</h3>
+                <p style="color: #666; line-height: 1.6; margin-bottom: 2rem;">Genau! Du hast rausgefunden, warum Nadja Niko heiraten möchte! 😂</p>
+                <button id="close-easter-egg" style="
+                    background-color: black;
+                    color: white;
+                    border: none;
+                    padding: 0.8rem 2rem;
+                    font-family: 'Lora', serif;
+                    cursor: pointer;
+                    text-transform: uppercase;
+                    letter-spacing: 0.1rem;
+                ">Schließen</button>
+            `;
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+            
+            // Close button event
+            document.getElementById('close-easter-egg').addEventListener('click', () => {
+                modal.remove();
+                // Reset the form fields
+                document.getElementById('first-name').value = '';
+                document.getElementById('last-name').value = '';
+                document.getElementById('first-name').focus();
+            });
+        }
+        
+        modal.style.display = 'flex';
+    }
+    
+    // Add CSS for confetti animation
+    if (!document.getElementById('confetti-styles')) {
+        const style = document.createElement('style');
+        style.id = 'confetti-styles';
+        style.textContent = `
+            @keyframes confetti-fall {
+                0% {
+                    transform: translateY(-10px) rotate(0deg);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(100vh) rotate(720deg);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
     // --- Message Translation Helper ---
     function translateMessage(message) {
         if (!message) return message;
@@ -399,6 +508,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
                 nameError.textContent = ''; // Clear error on success
+
+                // Easter Egg Check
+                const firstName = firstNameInput.value.trim().toLowerCase();
+                const lastName = lastNameInput.value.trim().toLowerCase();
+                
+                if (firstName === 'big' && lastName === 'dick') {
+                    createConfetti();
+                    showEasterEggModal();
+                    return; // Stop here, user needs to close modal and re-enter
+                }
 
                 // Skip API checks if we're editing an existing RSVP
                 if (isEditingExistingRSVP) {
@@ -790,21 +909,21 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- Add to Calendar Functionality ---
 const calendarButtons = document.querySelectorAll('.add-to-calendar-btn');
 
-// Event data - adjust dates and times as needed
+// Event data - Thailand Time (UTC+7)
 const eventData = {
-    'welcome-dinner': {
-        title: 'Welcome Dinner - Nadja & Niko Wedding',
-        startDate: '2025-12-30T19:00:00', // Adjust to actual date/time
-        endDate: '2025-12-30T22:00:00',
-        location: 'Villa Baan Asan, Koh Samui, Thailand',
-        description: 'Welcome dinner for Nadja & Niko\'s wedding celebration. Join us for an evening of good food and great company as we kick off our wedding festivities.'
+    'welcome-brunch': {
+        title: 'Welcome Brunch - Nadja & Niko Wedding',
+        startDate: '2026-03-10T11:00:00+07:00', // 11:00 Thailand Time
+        endDate: '2026-03-10T14:00:00+07:00',   // 14:00 Thailand Time
+        location: 'Villa June - Bophut, Koh Samui, Thailand',
+        description: 'Welcome Brunch'
     },
     'wedding-ceremony': {
         title: 'Wedding Ceremony & Reception - Nadja & Niko',
-        startDate: '2025-12-31T16:00:00', // Adjust to actual date/time
-        endDate: '2025-12-31T23:00:00',
-        location: 'Villa Baan Asan, Koh Samui, Thailand',
-        description: 'The wedding ceremony and reception of Nadja & Niko. Witness their vows and celebrate their love with dancing, dining, and unforgettable memories.'
+        startDate: '2026-03-11T17:00:00+07:00', // 17:00 Thailand Time
+        endDate: '2026-03-12T00:00:00+07:00',   // 00:00 Thailand Time (next day)
+        location: 'https://maps.app.goo.gl/Ldodg3k3wijoWRZu8',
+        description: 'The wedding ceremony and reception of Nadja & Niko at Villa Baan Asan'
     }
 };
 
@@ -825,6 +944,15 @@ function downloadCalendarEvent(event) {
         return new Date(dateString).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     };
     
+    // Escape special characters in ICS format
+    const escapeICSText = (text) => {
+        return text
+            .replace(/\\/g, '\\\\')   // Escape backslashes
+            .replace(/,/g, '\\,')     // Escape commas
+            .replace(/;/g, '\\;')     // Escape semicolons
+            .replace(/\n/g, '\\n');   // Escape newlines
+    };
+    
     const startDate = formatDateForICS(event.startDate);
     const endDate = formatDateForICS(event.endDate);
     const now = formatDateForICS(new Date().toISOString());
@@ -838,9 +966,9 @@ UID:${Date.now()}@thebjelics-wedding.com
 DTSTAMP:${now}
 DTSTART:${startDate}
 DTEND:${endDate}
-SUMMARY:${event.title}
-DESCRIPTION:${event.description}
-LOCATION:${event.location}
+SUMMARY:${escapeICSText(event.title)}
+DESCRIPTION:${escapeICSText(event.description)}
+LOCATION:${escapeICSText(event.location)}
 STATUS:CONFIRMED
 SEQUENCE:0
 END:VEVENT

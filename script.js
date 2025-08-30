@@ -257,13 +257,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- Message Translation Helper ---
     function translateMessage(message) {
-        if (!message) return message;
+        if (!message || !window.languageManager) return message;
         
-        // Translation mappings for server messages
-        const translations = {
-            'Sorry, this name is not on our guest list.': 'Entschuldigung, dieser Name steht nicht auf unserer Gästeliste.',
-            'Thank you! Your RSVP has been submitted successfully.': 'Vielen Dank! Ihr RSVP wurde erfolgreich übermittelt.',
-        };
+        // Check for specific server error messages and translate them
+        if (message === 'Sorry, this name is not on our guest list.') {
+            return window.languageManager.getTranslation('error_name_not_found');
+        }
+        
+        if (message === 'Thank you! Your RSVP has been submitted successfully.') {
+            return window.languageManager.getTranslation('success_rsvp_submitted');
+        }
         
         // Handle dynamic messages with patterns
         if (message.includes('Changes can only be made by the main contact:')) {
@@ -271,12 +274,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const nameMatch = message.match(/Changes can only be made by the main contact: ([^.]+)\./);
             if (nameMatch) {
                 const contactName = nameMatch[1];
-                return `Änderungen können nur vom Hauptkontakt vorgenommen werden: ${contactName}. Bitte kontaktieren Sie diese Person, um Änderungen an Ihrem RSVP vorzunehmen.`;
+                const translatedTemplate = window.languageManager.getTranslation('error_changes_main_contact');
+                return window.languageManager.getTranslationWithPlaceholder('error_changes_main_contact', { name: contactName });
             }
         }
         
-        // Direct translation lookup
-        return translations[message] || message;
+        // Handle guest not on list error (with names)
+        const guestNotOnListMatch = message.match(/(.+) is not on the guest list and therefore cannot be added\./);
+        if (guestNotOnListMatch) {
+            const guestName = guestNotOnListMatch[1];
+            return window.languageManager.getTranslationWithPlaceholder('error_not_on_guest_list', { name: guestName });
+        }
+        
+        // Handle already has RSVP error (with names)
+        const alreadyHasRsvpMatch = message.match(/(.+) has already submitted their own RSVP and therefore cannot be added as a guest\./);
+        if (alreadyHasRsvpMatch) {
+            const guestName = alreadyHasRsvpMatch[1];
+            return window.languageManager.getTranslationWithPlaceholder('error_already_has_rsvp', { name: guestName });
+        }
+        
+        // Fallback to original message
+        return message;
     }
     // --- Guest Management ---
     let guestCount = 0;
@@ -292,14 +310,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         guestCount++;
 
+        // Get translations for guest fields
+        const guestNameLabel = window.languageManager ? 
+            window.languageManager.getTranslation('guest_name_label') : 
+            'Gastname <em>(erforderlich)</em>';
+        const firstNamePlaceholder = window.languageManager ? 
+            window.languageManager.getTranslation('guest_first_name_placeholder') : 
+            'Vorname';
+        const lastNamePlaceholder = window.languageManager ? 
+            window.languageManager.getTranslation('guest_last_name_placeholder') : 
+            'Nachname';
+
         const guestEntry = document.createElement('div');
         guestEntry.classList.add('guest-entry');
         guestEntry.innerHTML = `
             <button type="button" class="remove-guest-btn" title="Gast entfernen">&times;</button>
-            <label>Gastname <em>(erforderlich)</em></label>
+            <label data-translate-html="guest_name_label">${guestNameLabel}</label>
             <div class="name-fields">
-                <input type="text" name="guest-first-name-${guestCount}" placeholder="Vorname" value="${firstName}" required>
-                <input type="text" name="guest-last-name-${guestCount}" placeholder="Nachname" value="${lastName}" required>
+                <input type="text" name="guest-first-name-${guestCount}" data-translate-placeholder="guest_first_name_placeholder" placeholder="${firstNamePlaceholder}" value="${firstName}" required>
+                <input type="text" name="guest-last-name-${guestCount}" data-translate-placeholder="guest_last_name_placeholder" placeholder="${lastNamePlaceholder}" value="${lastName}" required>
             </div>
         `;
         guestListContainer.appendChild(guestEntry);
@@ -310,6 +339,11 @@ document.addEventListener('DOMContentLoaded', () => {
             guestCount--;
             updateAddGuestButton();
         });
+
+        // Apply translations to the newly created guest entry
+        if (window.languageManager) {
+            window.languageManager.applyTranslations();
+        }
 
         updateAddGuestButton();
     }
@@ -488,7 +522,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentFields = currentStepElement.querySelectorAll('[required]');
             const isValid = Array.from(currentFields).every(field => field.value.trim() !== '');
             if (!isValid) {
-                alert('Bitte füllen Sie alle erforderlichen Felder aus.');
+                const errorMsg = window.languageManager ? 
+                    window.languageManager.getTranslation('error_required_fields') : 
+                    'Bitte füllen Sie alle erforderlichen Felder aus.';
+                alert(errorMsg);
                 return;
             }
 
@@ -500,11 +537,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Perform validation
                 if (!firstNameInput.value.trim() || !lastNameInput.value.trim()) {
-                    nameError.textContent = 'Vor- und Nachname sind erforderlich.';
+                    const errorMsg = window.languageManager ? 
+                        window.languageManager.getTranslation('error_name_required') : 
+                        'Vor- und Nachname sind erforderlich.';
+                    nameError.textContent = errorMsg;
                     return;
                 }
                 if (!validateName(firstNameInput.value) || !validateName(lastNameInput.value)) {
-                    nameError.textContent = 'Namen dürfen nur Buchstaben, Leerzeichen und Bindestriche enthalten.';
+                    const errorMsg = window.languageManager ? 
+                        window.languageManager.getTranslation('error_name_format') : 
+                        'Namen dürfen nur Buchstaben, Leerzeichen und Bindestriche enthalten.';
+                    nameError.textContent = errorMsg;
                     return;
                 }
                 nameError.textContent = ''; // Clear error on success
@@ -653,7 +696,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             if (!validateEmail(emailInput.value)) {
-                emailError.textContent = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
+                const errorMsg = window.languageManager ? 
+                    window.languageManager.getTranslation('error_invalid_email') : 
+                    'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
+                emailError.textContent = errorMsg;
                 emailError.style.color = '#ff0000';
             } else {
                 emailError.textContent = '';
@@ -685,11 +731,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Email validation
             if (!emailInput.value.trim()) {
-                emailError.textContent = 'E-Mail-Adresse ist erforderlich.';
+                const errorMsg = window.languageManager ? 
+                    window.languageManager.getTranslation('error_email_required') : 
+                    'E-Mail-Adresse ist erforderlich.';
+                emailError.textContent = errorMsg;
                 emailError.style.color = '#ff0000';
                 hasValidationErrors = true;
             } else if (!validateEmail(emailInput.value)) {
-                emailError.textContent = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
+                const errorMsg = window.languageManager ? 
+                    window.languageManager.getTranslation('error_invalid_email') : 
+                    'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
+                emailError.textContent = errorMsg;
                 emailError.style.color = '#ff0000';
                 hasValidationErrors = true;
             } else {
@@ -698,7 +750,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Attending validation
             if (!isAttending) {
-                formMessage.textContent = 'Bitte wählen Sie aus, ob Sie teilnehmen werden.';
+                const errorMsg = window.languageManager ? 
+                    window.languageManager.getTranslation('error_attendance_required') : 
+                    'Bitte wählen Sie aus, ob Sie teilnehmen werden.';
+                formMessage.textContent = errorMsg;
                 formMessage.className = 'form-message error';
                 hasValidationErrors = true;
             }
@@ -718,7 +773,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (hasGuestErrors) {
-                formMessage.textContent = 'Bitte füllen Sie alle Gastnamen korrekt aus (nur Buchstaben, Leerzeichen und Bindestriche sind erlaubt).';
+                const errorMsg = window.languageManager ? 
+                    window.languageManager.getTranslation('error_guest_names_format') : 
+                    'Bitte füllen Sie alle Gastnamen korrekt aus (nur Buchstaben, Leerzeichen und Bindestriche sind erlaubt).';
+                formMessage.textContent = errorMsg;
                 formMessage.className = 'form-message error';
                 hasValidationErrors = true;
             }
@@ -915,7 +973,7 @@ const eventData = {
         title: 'Welcome Brunch - Nadja & Niko Wedding',
         startDate: '2026-03-10T11:00:00+07:00', // 11:00 Thailand Time
         endDate: '2026-03-10T14:00:00+07:00',   // 14:00 Thailand Time
-        location: 'Villa June - Bophut, Koh Samui, Thailand',
+        location: 'https://maps.app.goo.gl/UTZiQEGb79uvtvVGA?g_st=ipc',
         description: 'Welcome Brunch'
     },
     'wedding-ceremony': {

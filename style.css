@@ -243,6 +243,64 @@ body.content-light {
   background-color: black !important;
 }
 
+/* Language Toggle Buttons */
+.language-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: white;
+  transition: all 0.3s ease;
+  z-index: 102;
+  position: relative;
+  line-height: 1;
+  width: 2rem;
+  height: 2rem;
+}
+
+.language-toggle::before {
+  content: "\f0ac"; /* Font Awesome globe */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.language-toggle:hover {
+  transform: scale(1.1);
+  opacity: 0.8;
+}
+
+/* Banner Language Toggle Hover - Override transform */
+.banner-language-toggle:hover {
+  transform: translateY(-50%) scale(1.1);
+  opacity: 0.8;
+}
+
+/* Home Language Toggle - Fixed Position */
+.home-language-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+}
+
+/* Banner Language Toggle - Part of Banner */
+.banner-language-toggle {
+  position: absolute;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: black;
+}
+
+/* Color changes on scroll for home button */
+.language-toggle.black-bg {
+  color: black;
+}
+
 .overlay {
   position: fixed;
   top: 100vh;
@@ -784,7 +842,7 @@ body.content-light .menu a:hover {
   font-size: 1.1rem;
   line-height: 1.6;
   margin-bottom: 1.5rem;
-  text-align: center;
+  text-align: justify;
   font-weight: 400;
   font-family: 'Lora', serif;
 }
@@ -800,7 +858,13 @@ body.content-light .menu a:hover {
 
 .travel-section {
   text-align: center;
-  padding: 2rem 0;
+  padding: 2rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  background-color: #f7f6f4;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 }
 
 .travel-section h2 {
@@ -812,6 +876,78 @@ body.content-light .menu a:hover {
   text-transform: uppercase;
   letter-spacing: 0.1rem;
   font-family: 'Lora', serif;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* Pfeil in der Überschrift (zugeklappter Zustand) */
+.travel-section h2::after {
+  content: '▼';
+  font-size: 1rem;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  color: #666;
+  transform: rotate(0deg);
+  position: absolute;
+  right: 0;
+}
+
+/* Pfeil ausblenden wenn expanded */
+.travel-section.expanded h2::after {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.travel-section-content {
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  max-height: 0;
+  opacity: 0;
+  position: relative;
+}
+
+.travel-section.expanded .travel-section-content {
+  max-height: 5000px;
+  opacity: 1;
+}
+
+/* Pfeil unten rechts als Pseudo-Element - nur sichtbar wenn expanded */
+.travel-section.expanded .travel-section-content::after {
+  content: '▲';
+  position: absolute;
+  bottom: 5px;
+  right: 1px;
+  font-size: 1.2rem;
+  color: #666;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: auto;
+}
+
+.travel-section.expanded .travel-section-content:hover::after {
+  color: #333;
+  transform: scale(1.1);
+}
+
+/* Remove button styles - nicht mehr verwendet */
+.close-section-btn {
+  display: none;
+}
+
+/* Remove old close button styles */
+.travel-section-close-btn {
+  display: none;
 }
 
 .travel-section h3 {
@@ -827,7 +963,7 @@ body.content-light .menu a:hover {
   font-size: 1.1rem;
   line-height: 1.6;
   color: #111;
-  text-align: center;
+  text-align: justify;
   font-weight: 400;
   font-family: 'Lora', serif;
 }
@@ -842,7 +978,7 @@ body.content-light .menu a:hover {
   font-size: 1.1rem;
   line-height: 1.6;
   color: #111;
-  text-align: center;
+  text-align: justify;
   font-weight: 400;
   font-family: 'Lora', serif;
 }
@@ -1008,7 +1144,7 @@ body.content-light .menu a:hover {
 .activity-text {
   max-width: 80%;
   margin: 1rem auto 1rem auto;
-  text-align: center;
+  text-align: justify;
   font-size: 1.1rem;
   line-height: 1.6;
   color: black;

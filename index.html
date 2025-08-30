@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initiale=1.0">
     <title>Nadja & Niko</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@300;400;700&display=swap" rel="stylesheet">
@@ -13,11 +13,11 @@
     <div id="password-overlay" class="password-overlay">
         <div class="password-container">
             <img src="Logo.svg" alt="Nadja & Niko" class="password-logo">
-            <h2>Welcome to our Wedding</h2>
-            <p>Please enter the password to continue</p>
+            <h2 data-translate="welcome_password">Welcome to our Wedding</h2>
+            <p data-translate="password_prompt">Please enter the password to continue</p>
             <form id="password-form">
-                <input type="password" id="password-input" placeholder="Enter password" required>
-                <button type="submit">Enter</button>
+                <input type="password" id="password-input" data-translate="password_placeholder" placeholder="Enter password" required>
+                <button type="submit" data-translate="password_button">Enter</button>
             </form>
             <div id="password-error" class="password-error"></div>
         </div>
@@ -32,27 +32,30 @@
           </button>
         <nav class="menu">
             <ul>
-                <li><a href="#home" class="scroll-link">Home</a></li>
+                <li><a href="#home" class="scroll-link" data-translate="menu_home">Home</a></li>
                 
-                <li><a href="#event" class="scroll-link">Events</a></li>
-                <li><a href="#location" class="scroll-link">Location</a></li>
-                <li><a href="#dresscode" class="scroll-link">Dresscode</a></li>
-                <li><a href="#FAQ" class="scroll-link">FAQ</a></li>
-                <li><a href="#rsvp" class="scroll-link">RSVP</a></li>
-                <li><a href="gallery.html">Gallery</a></li>
+                <li><a href="#event" class="scroll-link" data-translate="menu_events">Events</a></li>
+                <li><a href="#location" class="scroll-link" data-translate="menu_location">Location</a></li>
+                <li><a href="#dresscode" class="scroll-link" data-translate="menu_dresscode">Dresscode</a></li>
+                <li><a href="#FAQ" class="scroll-link" data-translate="menu_faq">FAQ</a></li>
+                <li><a href="#rsvp" class="scroll-link" data-translate="menu_rsvp">RSVP</a></li>
+                <li><a href="gallery.html" data-translate="menu_gallery">Gallery</a></li>
             </ul>
         </nav>
     </div>
     <div class="overlay"></div>
 
+    <!-- Language Toggle Button for Home -->
+  <button class="language-toggle home-language-toggle" id="languageToggle" aria-label="Switch language"></button>
+
     <!-- Hauptseite als Sektion -->
     <section id="home" class="content-section">
         <img src="Logo.svg" alt="Nadja & Niko Wedding Logo" class="home-logo">
         <div class="countdown">
-            <div><span id="days">0</span><div>Tage</div></div>
-            <div><span id="hours">00</span><div>Stunden</div></div>
-            <div><span id="minutes">00</span><div>Minunten</div></div>
-            <div><span id="seconds">00</span><div>Sekunden</div></div>
+            <div><span id="days">0</span><div data-translate="countdown_days">Tage</div></div>
+            <div><span id="hours">00</span><div data-translate="countdown_hours">Stunden</div></div>
+            <div><span id="minutes">00</span><div data-translate="countdown_minutes">Minuten</div></div>
+            <div><span id="seconds">00</span><div data-translate="countdown_seconds">Sekunden</div></div>
         </div>
         <script src="countdown.js" defer></script>
     </section>
@@ -61,31 +64,32 @@
 
     <!-- Weitere Sektionen -->
     <section id="event" class="content-section event-section">
-        <div class="banner">
+        <div class="banner index-banner">
             <h2>NADJA <span class="ampersand">  &</span> NIKO</h2>
             <hr>
+            <button class="language-toggle banner-language-toggle" id="bannerLanguageToggle" aria-label="Switch language"></button>
         </div>
-        <h2 class="section-title">EVENTS</h2>
+        <h2 class="section-title" data-translate="events_title">EVENTS</h2>
         <div class="event-container">
             <div class="event-item">
                 <img src="Villa_June.jpeg" alt="Welcome Brunch">
                 <h2>Welcome Brunch</h2>
-                <p style="font-size: 1.1rem;">Dienstag, 10.03.2026 <br> 11:00 - 14:00 <br> Villa June - Bophut, Koh Samui</p>
+                <p style="font-size: 1.1rem;" data-translate="welcome_brunch" data-translate-html>Dienstag, 10.03.2026 <br> 11:00 - 14:00 <br> Villa June - Bophut, Koh Samui</p>
                 <div class="add-to-calendar-wrapper">
                     <button class="add-to-calendar-btn" data-event="welcome-brunch">
                         <i class="fas fa-calendar-plus"></i>
-                        <span>Add to Calendar</span>
+                        <span data-translate="add_to_calendar">Kalender-eintrag</span>
                     </button>
                 </div>
             </div>
             <div class="event-item">
                 <img src="Hochzeit.jpeg" alt="Reception & Ceremony">
                 <h2>Reception <span class="ampersand">  &</span> Ceremony</h2>
-                <p style="font-size: 1.1rem;">Mittwoch, 11.03.2026 <br> 17:00 - 00:00 <br> Villa Baan Asan - Taling Ngam, Koh Samui</p>
+                <p style="font-size: 1.1rem;" data-translate="wedding_ceremony" data-translate-html>Mittwoch, 11.03.2026 <br> 17:00 - 00:00 <br> Villa Baan Asan - Taling Ngam, Koh Samui</p>
                 <div class="add-to-calendar-wrapper">
                     <button class="add-to-calendar-btn" data-event="wedding-ceremony">
                         <i class="fas fa-calendar-plus"></i>
-                        <span>Add to Calendar</span>
+                        <span data-translate="add_to_calendar">Kalender-eintrag</span>
                     </button>
                 </div>
             </div>
@@ -102,12 +106,12 @@
               </div>
         
               <div class="location-center">
-                <h2 class="section-title">LOCATION</h2>
+                <h2 class="section-title" data-translate="location_title">LOCATION</h2>
                 <a href="https://www.baanasan.com/" target="_blank" rel="noopener noreferrer">
                   <img src="Baan_Asan_converted.jpg" alt="Hochzeitslocation">
                 </a>
                 <div class="location-button-wrapper">
-                    <a href="travel.html" class="travel-button">ANREISE & UNTERKUNFT</a>
+                    <a href="travel.html" class="travel-button" data-translate="travel_button">ANREISE & UNTERKUNFT</a>
                   </div>
               </div>
         
@@ -118,21 +122,22 @@
     </section>
     <hr class="section-divider">
     <section id="dresscode" class="content-section dresscode-section">
-        <h2 class="dresscode-title">DRESSCODE</h2>
+        <h2 class="dresscode-title" data-translate="dresscode_title">DRESSCODE</h2>
         <div class="dresscode-wrapper">
           <div class="dresscode-image">
             <img src="Dresscode.png" alt="Dresscode Inspiration">
           </div>
-          <div class="dresscode-text">
+          
+         <div class="dresscode-text">
             <h3><strong>Dresscode: Urban Jungle-Black Chic</strong></h3>
-            <p>Für unseren besonderen Tag laden wir euch ein, in elegantem <strong>Schwarz</strong> mit uns zu feiern. Die Herren im Anzug, die Damen in festlicher Kleidung – so schaffen wir gemeinsam ein stilvolles Gesamtbild. Bitte verzichtet auf Freizeit- oder Strandoutfits, damit der Look rundum edel bleibt. Wer möchte, kann den Look mit einem dezenten Akzent in <strong>Dunkelgrün</strong> abrunden und einen Hauch „Urban Jungle“ einbringen.
+            <p data-translate="dresscode_description" data-translate-html>Für unseren besonderen Tag laden wir euch ein, in elegantem <strong>Schwarz</strong> mit uns zu feiern. Die Herren im Anzug, die Damen in festlicher Kleidung – so schaffen wir gemeinsam ein stilvolles Gesamtbild. Bitte verzichtet auf Freizeit- oder Strandoutfits, damit der Look rundum edel bleibt. Wer möchte, kann den Look mit einem dezenten Akzent in <strong>Dunkelgrün</strong> abrunden und einen Hauch „Urban Jungle" einbringen.
 Wir können es kaum erwarten, diesen besonderen Tag in stylischem <strong>Schwarz</strong> mit euch zu verbringen!</p>
           </div>
         </div>
       </section>
     <hr class="section-divider">  
     <section id="FAQ" class="content-section FAQ-section">
-        <h2 class="FAQ-title">Frequently Asked Questions</h2>
+        <h2 class="FAQ-title" data-translate="faq_title">Frequently Asked Questions</h2>
   <div class="faq-container">
     <div class="faq-box">
       <h2>Kann ich eine Begleitperson mitbringen?</h2>
@@ -162,15 +167,15 @@ Wir können es kaum erwarten, diesen besonderen Tag in stylischem <strong>Schwar
       </section>
        <hr class="section-divider"> 
      <section id="rsvp" class="content-section rsvp-section">
-  <h2 class="rsvp-title">RSVP</h2>
-  <p class="rsvp-subtitle">
+  <h2 class="rsvp-title" data-translate="rsvp_title">RSVP</h2>
+  <p class="rsvp-subtitle" data-translate="rsvp_subtitle1" data-translate-html>
   Wir können es kaum erwarten, den <strong>schönsten Tag unseres Lebens</strong> mit euch zu feiern! 
   <br><br>
   Unten findet ihr die <strong>RSVP-Form</strong>, über die ihr eure <strong>Zusage oder Absage</strong> eintragen könnt.  
   Keine Sorge: Ihr könnt eure Angaben jederzeit <strong>nachträglich ändern</strong> – zum Beispiel, um euer <strong>Ankunftsdatum</strong> einzutragen oder noch einen <strong>Gast hinzuzufügen</strong>.  
   (Kinder müsst ihr nicht extra angeben.)
 </p>
-<p>
+<p data-translate="rsvp_subtitle2" data-translate-html>
   Bitte gebt uns bis spätestens <strong>XX.XX.XXXX</strong> Bescheid, ob ihr dabei seid.
 </p>
   <form class="rsvp-form" id="rsvp-form">
@@ -178,65 +183,65 @@ Wir können es kaum erwarten, diesen besonderen Tag in stylischem <strong>Schwar
     <div id="form-message" class="form-message"></div>
     <!-- Step 1: Primary Guest Identification -->
     <fieldset id="step-1" class="form-step visible">
-      <label for="first-name">Dein Name <em>(erforderlich)</em></label>
+      <label for="first-name" data-translate="first_name_label" data-translate-html>Dein Name <em>(erforderlich)</em></label>
       <div class="name-fields">
-        <input type="text" id="first-name" name="first-name" placeholder="Vorname" required>
-        <input type="text" id="last-name" name="last-name" placeholder="Nachname" required>
+        <input type="text" id="first-name" name="first-name" data-translate="first_name_placeholder" placeholder="Vorname" required>
+        <input type="text" id="last-name" name="last-name" data-translate="last_name_placeholder" placeholder="Nachname" required>
       </div>
       <span class="error-message" id="name-error"></span>
       <div class="next-btn-wrapper">
-        <button type="button" class="next-btn">Weiter</button>
+        <button type="button" class="next-btn" data-translate="next_btn">Weiter</button>
       </div>
     </fieldset>
 
     <!-- Step 2: Guest Information -->
     <fieldset id="step-2" class="form-step">
-      <label>Deine Gäste</label>
+      <label data-translate="guest_label">Deine Gäste</label>
       <div id="guest-list">
         <!-- Dynamic guest fields will be added here -->
       </div>
-      <button type="button" id="add-guest-btn" class="add-guest-btn">+ Gast hinzufügen</button>
+      <button type="button" id="add-guest-btn" class="add-guest-btn" data-translate="add_guest_btn">+ Gast hinzufügen</button>
       <div class="next-btn-wrapper">
-        <button type="button" class="next-btn">Weiter</button>
+        <button type="button" class="next-btn" data-translate="next_btn">Weiter</button>
       </div>
     </fieldset>
 
     <!-- Step 3: Final Details -->
     <fieldset id="step-3" class="form-step">
-      <label for="email">E-Mail <em>(erforderlich)</em></label>
+      <label for="email" data-translate="email_label" data-translate-html>E-Mail <em>(erforderlich)</em></label>
       <input type="email" id="email" name="email" required>
       <span class="error-message" id="email-error"></span>
 
-      <label>Wirst du teilnehmen? <em>(erforderlich)</em></label>
+      <label data-translate="attending_label" data-translate-html>Wirst du teilnehmen? <em>(erforderlich)</em></label>
       <div class="radio-group">
-        <label><input type="radio" name="attending" value="yes" required> Ja</label>
-        <label><input type="radio" name="attending" value="no"> Nein</label>
+        <label><input type="radio" name="attending" value="yes" required> <span data-translate="attending_yes">Ja</span></label>
+        <label><input type="radio" name="attending" value="no"> <span data-translate="attending_no">Nein</span></label>
       </div>
 
-      <label for="food-restrictions">Unverträglichkeiten oder Ernährungswünsche?</label>
+      <label for="food-restrictions" data-translate="food_restrictions_label" data-translate-html>Unverträglichkeiten oder Ernährungswünsche?</label>
       <input type="text" id="food-restrictions" name="food-restrictions">
 
-      <label for="song">Welchen Song würdest du gerne auf der Party hören?</label>
+      <label for="song" data-translate="song_label" data-translate-html>Welchen Song würdest du gerne auf der Party hören?</label>
       <input type="text" id="song" name="song">
 
-      <label for="accommodation">Unterkunft</label>
+      <label for="accommodation" data-translate="accommodation_label" data-translate-html>Unterkunft</label>
       <input type="text" id="accommodation" name="accommodation">
 
-      <label for="arrival-date">Ankunftsdatum</label>
+      <label for="arrival-date" data-translate="arrival_date_label" data-translate-html>Ankunftsdatum</label>
       <input type="date" id="arrival-date" name="arrival-date">
 
-      <label for="comment">Kommentare</label>
+      <label for="comment" data-translate="comment_label" data-translate-html>Kommentare</label>
       <input type="text" id="comment" name="comment">
 
       <div class="submit-wrapper">
-        <button type="submit" id="submit-button">SENDEN</button>
+        <button type="submit" id="submit-button" data-translate="submit_button">SENDEN</button>
       </div>
     </fieldset>
   </form>
   
   <!-- Gallery Section -->
   <div class="gallery-info">
-    <p>Wir haben einige schöne Bilder von uns für euch zusammengestellt! Schaut gerne in unsere Galerie:</p>
+    <p data-translate="gallery_info">Wir haben einige schöne Bilder von uns für euch zusammengestellt! Schaut gerne in unsere Galerie:</p>
     <div class="gallery-button-wrapper">
       <a href="gallery.html" class="travel-button">GALLERY</a>
     </div>
@@ -251,11 +256,11 @@ Wir können es kaum erwarten, diesen besonderen Tag in stylischem <strong>Schwar
     <!-- Resubmission Overlay -->
     <div id="resubmissionOverlay" class="resubmission-overlay">
       <div class="resubmission-modal">
-        <h3>RSVP bereits eingereicht</h3>
-        <p>Du hast bereits ein RSVP eingereicht. Möchtest du deine Antwort ändern?</p>
+        <h3 data-translate="rsvp_already_submitted">RSVP bereits eingereicht</h3>
+        <p data-translate="rsvp_change_prompt">Du hast bereits ein RSVP eingereicht. Möchtest du deine Antwort ändern?</p>
         <div class="resubmission-buttons">
-          <button id="editRsvpBtn" class="resubmission-btn">JA, BEARBEITEN</button>
-          <button id="keepRsvpBtn" class="resubmission-btn secondary">NEIN, BEHALTEN</button>
+          <button id="editRsvpBtn" class="resubmission-btn" data-translate="edit_rsvp_btn">JA, BEARBEITEN</button>
+          <button id="keepRsvpBtn" class="resubmission-btn secondary" data-translate="keep_rsvp_btn">NEIN, BEHALTEN</button>
         </div>
       </div>
     </div>
@@ -288,5 +293,8 @@ Wir können es kaum erwarten, diesen besonderen Tag in stylischem <strong>Schwar
     });
   });
 </script>
+
+<!-- Include language switching script -->
+<script src="language.js"></script>
 </body>
 </html>

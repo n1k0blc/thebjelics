@@ -58,6 +58,20 @@
     Wie ihr ja wisst, zieht es uns schon seit einigen Jahren regelmäßig nach Thailand – und wir wollen unsere Erfahrungen und Tipps gerne mit euch teilen. In diesem Guide findet ihr alles Wichtige für eure Reise nach <strong>Koh Samui</strong>: von <strong>Anreise</strong> und <strong>Unterkunft</strong> über <strong>Transport</strong> und <strong>Aktivitäten</strong> bis hin zu einer <strong>Google-Maps-Karte</strong> mit allen wichtigen Orten. Wir hoffen, dass euch der Guide die Planung erleichtert und ihr eine richtig schöne Zeit auf <strong>Koh Samui</strong> habt.
   </p>
 </div>
+
+<!-- Weather Widget for Koh Samui -->
+<div class="weather-widget">
+  <div class="weather-header">
+    <h3 data-translate="weather_title">Aktuelles Wetter in Koh Samui</h3>
+    <span class="weather-last-update" id="lastUpdate"></span>
+  </div>
+  <div class="weather-content" id="weatherContent">
+    <div class="weather-loading">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span data-translate="weather_loading">Lade Wetterdaten...</span>
+    </div>
+  </div>
+</div>
   
      <div class="travel-sections">
   <div class="travel-section">
@@ -234,6 +248,298 @@
 
   </body>
   <script>
+    // Weather Widget Configuration
+    const WEATHER_CONFIG = {
+      apiKey: 'YOUR_API_KEY_HERE', // Replace with your OpenWeatherMap API key
+      city: 'Ko Samui',
+      country: 'TH',
+      units: 'metric',
+      updateInterval: 10 * 60 * 1000, // 10 minutes
+    };
+
+    // Weather icon mapping
+    const WEATHER_ICONS = {
+      '01d': '☀️', '01n': '🌙',
+      '02d': '⛅', '02n': '☁️',
+      '03d': '☁️', '03n': '☁️',
+      '04d': '☁️', '04n': '☁️',
+      '09d': '🌧️', '09n': '🌧️',
+      '10d': '🌦️', '10n': '🌧️',
+      '11d': '⛈️', '11n': '⛈️',
+      '13d': '❄️', '13n': '❄️',
+      '50d': '🌫️', '50n': '🌫️'
+    };
+
+    // Weather descriptions in German
+    const WEATHER_DESCRIPTIONS_DE = {
+      'clear sky': 'Klarer Himmel',
+      'few clouds': 'Wenige Wolken',
+      'scattered clouds': 'Verstreute Wolken',
+      'broken clouds': 'Bewölkt',
+      'overcast clouds': 'Bedeckt',
+      'shower rain': 'Schauer',
+      'rain': 'Regen',
+      'light rain': 'Leichter Regen',
+      'moderate rain': 'Mäßiger Regen',
+      'heavy intensity rain': 'Starker Regen',
+      'thunderstorm': 'Gewitter',
+      'snow': 'Schnee',
+      'mist': 'Nebel',
+      'haze': 'Dunst'
+    };
+
+    class WeatherWidget {
+      constructor() {
+        this.weatherContent = document.getElementById('weatherContent');
+        this.lastUpdateElement = document.getElementById('lastUpdate');
+        this.currentLanguage = 'de';
+        
+        // Initialize weather
+        this.loadWeather();
+        
+        // Set up auto-refresh
+        setInterval(() => this.loadWeather(), WEATHER_CONFIG.updateInterval);
+        
+        // Update when language changes
+        document.addEventListener('languageChanged', () => {
+          this.currentLanguage = document.documentElement.lang || 'de';
+          this.loadWeather();
+        });
+      }
+
+      async loadWeather() {
+        try {
+          // Show loading state
+          this.showLoading();
+          
+          // Load real weather data from free API
+          await this.loadRealWeatherFree();
+          
+        } catch (error) {
+          console.error('Weather loading error:', error);
+          // Fallback to demo data if API fails
+          await this.loadDemoWeather();
+        }
+      }
+
+      async loadRealWeatherFree() {
+        try {
+          // Using wttr.in - free weather API without registration
+          const response = await fetch('https://wttr.in/Koh_Samui,Thailand?format=j1');
+          
+          if (!response.ok) {
+            throw new Error('Weather API error');
+          }
+          
+          const data = await response.json();
+          
+          const current = data.current_condition[0];
+          const today = data.weather[0];
+          const forecast = data.weather.slice(0, 4);
+          
+          const processedWeather = {
+            current: {
+              temp: Math.round(current.temp_C),
+              description: current.weatherDesc[0].value.toLowerCase(),
+              icon: this.mapWeatherCodeToIcon(current.weatherCode),
+              humidity: parseInt(current.humidity),
+              windSpeed: Math.round(current.windspeedKmph),
+              feelsLike: Math.round(current.FeelsLikeC)
+            },
+            forecast: forecast.map((day, index) => {
+              const days = ['Heute', 'Morgen', 'Übermorgen', 'Do'];
+              const daysEn = ['Today', 'Tomorrow', 'Day after', 'Thu'];
+              return {
+                day: this.currentLanguage === 'de' ? days[index] : daysEn[index],
+                icon: this.mapWeatherCodeToIcon(day.hourly[4].weatherCode), // midday weather
+                temp: `${Math.round(day.maxtempC)}°/${Math.round(day.mintempC)}°`
+              };
+            })
+          };
+          
+          this.displayWeather(processedWeather);
+          
+        } catch (error) {
+          console.error('Free weather API failed:', error);
+          throw error; // Will trigger fallback to demo data
+        }
+      }
+
+      mapWeatherCodeToIcon(code) {
+        // wttr.in weather codes to emoji mapping
+        const codeMap = {
+          '113': '01d', // Sunny/Clear
+          '116': '02d', // Partly cloudy
+          '119': '03d', // Cloudy
+          '122': '04d', // Overcast
+          '143': '50d', // Mist
+          '176': '10d', // Patchy rain possible
+          '179': '13d', // Patchy snow possible
+          '182': '13d', // Patchy sleet possible
+          '185': '13d', // Patchy freezing drizzle possible
+          '200': '11d', // Thundery outbreaks possible
+          '227': '13d', // Blowing snow
+          '230': '13d', // Blizzard
+          '248': '50d', // Fog
+          '260': '50d', // Freezing fog
+          '263': '09d', // Patchy light drizzle
+          '266': '09d', // Light drizzle
+          '281': '13d', // Freezing drizzle
+          '284': '13d', // Heavy freezing drizzle
+          '293': '09d', // Patchy light rain
+          '296': '09d', // Light rain
+          '299': '09d', // Moderate rain at times
+          '302': '10d', // Moderate rain
+          '305': '10d', // Heavy rain at times
+          '308': '10d', // Heavy rain
+          '311': '13d', // Light freezing rain
+          '314': '13d', // Moderate or heavy freezing rain
+          '317': '13d', // Light sleet
+          '320': '13d', // Moderate or heavy sleet
+          '323': '13d', // Patchy light snow
+          '326': '13d', // Light snow
+          '329': '13d', // Patchy moderate snow
+          '332': '13d', // Moderate snow
+          '335': '13d', // Patchy heavy snow
+          '338': '13d', // Heavy snow
+          '350': '13d', // Ice pellets
+          '353': '09d', // Light rain shower
+          '356': '10d', // Moderate or heavy rain shower
+          '359': '10d', // Torrential rain shower
+          '362': '13d', // Light sleet showers
+          '365': '13d', // Moderate or heavy sleet showers
+          '368': '13d', // Light snow showers
+          '371': '13d', // Moderate or heavy snow showers
+          '374': '13d', // Light showers of ice pellets
+          '377': '13d', // Moderate or heavy showers of ice pellets
+          '386': '11d', // Patchy light rain with thunder
+          '389': '11d', // Moderate or heavy rain with thunder
+          '392': '11d', // Patchy light snow with thunder
+          '395': '11d'  // Moderate or heavy snow with thunder
+        };
+        
+        return codeMap[code] || '01d'; // Default to sunny if unknown
+      }
+
+      async loadDemoWeather() {
+        // Demo weather data for Koh Samui
+        const demoWeather = {
+          current: {
+            temp: 28,
+            description: 'few clouds',
+            icon: '02d',
+            humidity: 75,
+            windSpeed: 12,
+            feelsLike: 32
+          },
+          forecast: [
+            { day: 'Heute', icon: '02d', temp: '28°/24°' },
+            { day: 'Morgen', icon: '01d', temp: '30°/25°' },
+            { day: 'Übermorgen', icon: '10d', temp: '26°/23°' },
+            { day: 'Do', icon: '01d', temp: '29°/24°' }
+          ]
+        };
+
+        this.displayWeather(demoWeather);
+      }
+
+      async loadRealWeather() {
+        // Real API call (requires API key)
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${WEATHER_CONFIG.city},${WEATHER_CONFIG.country}&appid=${WEATHER_CONFIG.apiKey}&units=${WEATHER_CONFIG.units}&lang=${this.currentLanguage}`
+        );
+        
+        if (!response.ok) {
+          throw new Error('Weather API error');
+        }
+        
+        const data = await response.json();
+        
+        // Also fetch forecast
+        const forecastResponse = await fetch(
+          `https://api.openweathermap.org/data/2.5/forecast?q=${WEATHER_CONFIG.city},${WEATHER_CONFIG.country}&appid=${WEATHER_CONFIG.apiKey}&units=${WEATHER_CONFIG.units}&lang=${this.currentLanguage}`
+        );
+        
+        const forecastData = await forecastResponse.json();
+        
+        this.displayRealWeather(data, forecastData);
+      }
+
+      displayWeather(weather) {
+        const description = this.currentLanguage === 'de' 
+          ? (WEATHER_DESCRIPTIONS_DE[weather.current.description] || weather.current.description)
+          : weather.current.description;
+
+        const html = `
+          <div class="weather-main">
+            <div class="weather-icon">
+              ${WEATHER_ICONS[weather.current.icon] || '🌤️'}
+            </div>
+            <div class="weather-temp">
+              <div class="current">${weather.current.temp}°C</div>
+              <div class="description">${description}</div>
+            </div>
+            <div class="weather-info">
+              <div><strong>${this.currentLanguage === 'de' ? 'Gefühlt' : 'Feels like'}:</strong> ${weather.current.feelsLike}°C</div>
+              <div><strong>${this.currentLanguage === 'de' ? 'Luftfeuchtigkeit' : 'Humidity'}:</strong> ${weather.current.humidity}%</div>
+              <div><strong>${this.currentLanguage === 'de' ? 'Wind' : 'Wind'}:</strong> ${weather.current.windSpeed} km/h</div>
+            </div>
+          </div>
+          <div class="weather-forecast">
+            ${weather.forecast.map(day => `
+              <div class="forecast-day">
+                <div class="day">${day.day}</div>
+                <div class="icon">${WEATHER_ICONS[day.icon] || '🌤️'}</div>
+                <div class="temp">${day.temp}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+
+        this.weatherContent.innerHTML = html;
+        this.updateLastUpdateTime();
+      }
+
+      showLoading() {
+        this.weatherContent.innerHTML = `
+          <div class="weather-loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span data-translate="weather_loading">${this.currentLanguage === 'de' ? 'Lade Wetterdaten...' : 'Loading weather...'}</span>
+          </div>
+        `;
+      }
+
+      showError() {
+        this.weatherContent.innerHTML = `
+          <div class="weather-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>${this.currentLanguage === 'de' ? 'Wetterdaten konnten nicht geladen werden' : 'Could not load weather data'}</div>
+          </div>
+        `;
+      }
+
+      updateLastUpdateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString(this.currentLanguage === 'de' ? 'de-DE' : 'en-US', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        const updateText = this.currentLanguage === 'de' 
+          ? `Zuletzt aktualisiert: ${timeString}`
+          : `Last updated: ${timeString}`;
+          
+        this.lastUpdateElement.textContent = updateText;
+      }
+    }
+
+    // Initialize weather widget when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      new WeatherWidget();
+    });
+  </script>
+  
+  <script>
     // Banner sticky functionality for travel page
     window.addEventListener('scroll', function() {
       const banner = document.querySelector('.travel-header-row .banner');
@@ -273,29 +579,86 @@
     // Travel section toggle functionality
     document.querySelectorAll('.travel-section h2').forEach(function(header) {
       header.addEventListener('click', function(e) {
-        console.log('🔥 Header clicked - Opening section');
+        console.log('🔥 Header clicked');
         
         e.preventDefault(); 
         const section = this.parentElement;
+        const isCurrentlyExpanded = section.classList.contains('expanded');
+        const openSections = document.querySelectorAll('.travel-section.expanded');
+        const hasOtherOpenSections = openSections.length > 0 && !isCurrentlyExpanded;
         
-        const scrollBefore = window.pageYOffset || document.documentElement.scrollTop;
-        console.log('📍 Scroll before opening:', scrollBefore);
-        
-        // Close all other sections first
-        document.querySelectorAll('.travel-section.expanded').forEach(function(otherSection) {
-          if (otherSection !== section) {
-            otherSection.classList.remove('expanded');
+        // If we're opening a new section while another is open, treat it like closing the old one first
+        if (hasOtherOpenSections) {
+          console.log('🔄 Switching sections - applying close logic first');
+          
+          // Store current scroll position and prevent automatic scrolling
+          const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          console.log('📍 Current scroll position:', currentScrollTop);
+          
+          // Calculate target position for the new section header
+          const newHeaderRect = this.getBoundingClientRect();
+          const targetScrollTop = currentScrollTop + newHeaderRect.top - 100; // 100px buffer above header
+          
+          // Apply scroll lock temporarily
+          const originalOverflow = document.body.style.overflow;
+          const originalPosition = document.body.style.position;
+          const originalTop = document.body.style.top;
+          
+          document.body.style.overflow = 'hidden';
+          document.body.style.position = 'fixed';
+          document.body.style.top = -currentScrollTop + 'px';
+          document.body.style.width = '100%';
+          
+          // Close other sections and open this one
+          openSections.forEach(function(otherSection) {
+            if (otherSection !== section) {
+              console.log('❌ Closing other section');
+              otherSection.classList.remove('expanded');
+            }
+          });
+          
+          console.log('✅ Opening new section');
+          section.classList.add('expanded');
+          
+          // Restore scroll and position to new section
+          setTimeout(() => {
+            console.log('🔓 Restoring scroll and positioning to new section');
+            document.body.style.overflow = originalOverflow;
+            document.body.style.position = originalPosition;
+            document.body.style.top = originalTop;
+            document.body.style.width = '';
+            
+            console.log('📍 Scrolling to new section position:', targetScrollTop);
+            window.scrollTo(0, Math.max(0, targetScrollTop));
+          }, 50);
+          
+        } else {
+          // Normal behavior - either opening the first section or toggling the current one
+          const scrollBefore = window.pageYOffset || document.documentElement.scrollTop;
+          console.log('📍 Scroll before action:', scrollBefore);
+          
+          // Close all other sections first (shouldn't be any, but just to be safe)
+          document.querySelectorAll('.travel-section.expanded').forEach(function(otherSection) {
+            if (otherSection !== section) {
+              otherSection.classList.remove('expanded');
+            }
+          });
+          
+          // Toggle this section
+          if (isCurrentlyExpanded) {
+            console.log('❌ Closing current section');
+            section.classList.remove('expanded');
+          } else {
+            console.log('✅ Opening section');
+            section.classList.add('expanded');
           }
-        });
-        
-        // Toggle this section
-        section.classList.toggle('expanded');
-        
-        setTimeout(() => {
-          const scrollAfter = window.pageYOffset || document.documentElement.scrollTop;
-          console.log('📍 Scroll after opening:', scrollAfter);
-          console.log('📊 Scroll changed by:', scrollAfter - scrollBefore);
-        }, 100);
+          
+          setTimeout(() => {
+            const scrollAfter = window.pageYOffset || document.documentElement.scrollTop;
+            console.log('📍 Scroll after action:', scrollAfter);
+            console.log('📊 Scroll changed by:', scrollAfter - scrollBefore);
+          }, 100);
+        }
       });
     });
 

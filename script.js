@@ -259,7 +259,37 @@ document.addEventListener('DOMContentLoaded', () => {
     function translateMessage(message) {
         if (!message || !window.languageManager) return message;
         
-        // Check for specific server error messages and translate them
+        // Handle German server messages (most common case)
+        
+        // Pattern: "Name ist nicht auf der Gästeliste..."
+        const germanGuestNotOnListMatch = message.match(/(.+) ist nicht auf der Gästeliste und kann daher nicht hinzugefügt werden\./);
+        if (germanGuestNotOnListMatch) {
+            const guestName = germanGuestNotOnListMatch[1];
+            return window.languageManager.getTranslationWithPlaceholder('error_not_on_guest_list', { name: guestName });
+        }
+        
+        // Pattern: "Name hat bereits eine eigene RSVP eingereicht..."
+        const germanAlreadyHasRsvpMatch = message.match(/(.+) hat bereits eine eigene RSVP eingereicht und kann daher nicht als Gast hinzugefügt werden\./);
+        if (germanAlreadyHasRsvpMatch) {
+            const guestName = germanAlreadyHasRsvpMatch[1];
+            return window.languageManager.getTranslationWithPlaceholder('error_already_has_rsvp', { name: guestName });
+        }
+        
+        // Simple German message mappings
+        if (message === 'Entschuldigung, dieser Name steht nicht auf unserer Gästeliste.') {
+            return window.languageManager.getTranslation('error_name_not_found');
+        }
+        
+        if (message === 'Vielen Dank! Deine RSVP wurde erfolgreich übermittelt.' || 
+            message === 'Vielen Dank! Ihr RSVP wurde erfolgreich übermittelt.') {
+            return window.languageManager.getTranslation('success_rsvp_submitted');
+        }
+        
+        if (message === 'Namen dürfen nur Buchstaben, Leerzeichen und Bindestriche enthalten.') {
+            return window.languageManager.getTranslation('error_name_format');
+        }
+        
+        // Handle English server messages (fallback)
         if (message === 'Sorry, this name is not on our guest list.') {
             return window.languageManager.getTranslation('error_name_not_found');
         }
@@ -268,25 +298,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return window.languageManager.getTranslation('success_rsvp_submitted');
         }
         
-        // Handle dynamic messages with patterns
+        // Handle dynamic messages with patterns (English)
         if (message.includes('Changes can only be made by the main contact:')) {
-            // Extract the name from the message
             const nameMatch = message.match(/Changes can only be made by the main contact: ([^.]+)\./);
             if (nameMatch) {
                 const contactName = nameMatch[1];
-                const translatedTemplate = window.languageManager.getTranslation('error_changes_main_contact');
                 return window.languageManager.getTranslationWithPlaceholder('error_changes_main_contact', { name: contactName });
             }
         }
         
-        // Handle guest not on list error (with names)
+        // Handle guest not on list error (English)
         const guestNotOnListMatch = message.match(/(.+) is not on the guest list and therefore cannot be added\./);
         if (guestNotOnListMatch) {
             const guestName = guestNotOnListMatch[1];
             return window.languageManager.getTranslationWithPlaceholder('error_not_on_guest_list', { name: guestName });
         }
         
-        // Handle already has RSVP error (with names)
+        // Handle already has RSVP error (English)
         const alreadyHasRsvpMatch = message.match(/(.+) has already submitted their own RSVP and therefore cannot be added as a guest\./);
         if (alreadyHasRsvpMatch) {
             const guestName = alreadyHasRsvpMatch[1];
@@ -365,7 +393,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showSuccessMessage() {
         const formMessage = document.getElementById('form-message');
-        formMessage.textContent = 'Vielen Dank! Ihr RSVP wurde erfolgreich übermittelt.';
+        const successMsg = window.languageManager ? 
+            window.languageManager.getTranslation('success_rsvp_submitted') : 
+            'Vielen Dank! Ihr RSVP wurde erfolgreich übermittelt.';
+        formMessage.textContent = successMsg;
         formMessage.className = 'form-message success';
         steps.forEach(step => step.style.display = 'none');
         document.getElementById('submit-button').style.display = 'none';
@@ -623,7 +654,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } catch (error) {
                     console.error('Error checking invitation or partner:', error);
-                    nameError.textContent = 'Ein Fehler ist beim Validieren Ihrer Einladung aufgetreten. Bitte versuchen Sie es erneut.';
+                    const errorMsg = window.languageManager ? 
+                        window.languageManager.getTranslation('error_invitation_validation') : 
+                        'Ein Fehler ist beim Validieren Ihrer Einladung aufgetreten. Bitte versuchen Sie es erneut.';
+                    nameError.textContent = errorMsg;
                     return;
                 }
             }
@@ -664,13 +698,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (!response.ok) {
                         const errorData = await response.json();
-                        formMessage.textContent = translateMessage(errorData.message) || 'Fehler bei der Gast-Validierung.';
+                        const errorMsg = translateMessage(errorData.message) || (window.languageManager ? 
+                            window.languageManager.getTranslation('error_guest_validation') : 
+                            'Fehler bei der Gast-Validierung.');
+                        formMessage.textContent = errorMsg;
                         formMessage.className = 'form-message error';
                         return; // Stop here if validation fails
                     }
                 } catch (error) {
                     console.error('Error validating guests:', error);
-                    formMessage.textContent = 'Ein Fehler ist bei der Gast-Validierung aufgetreten. Bitte versuchen Sie es erneut.';
+                    const errorMsg = window.languageManager ? 
+                        window.languageManager.getTranslation('error_guest_validation_failed') : 
+                        'Ein Fehler ist bei der Gast-Validierung aufgetreten. Bitte versuchen Sie es erneut.';
+                    formMessage.textContent = errorMsg;
                     formMessage.className = 'form-message error';
                     return;
                 }
@@ -820,7 +860,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Disable button and clear previous messages
             submitButton.disabled = true;
-            submitButton.textContent = 'SENDEN...';
+            const sendingText = window.languageManager ? 
+                window.languageManager.getTranslation('submit_button_sending') : 
+                'SENDEN...';
+            submitButton.textContent = sendingText;
             formMessage.className = 'form-message'; // Reset the message
 
             try {
@@ -857,7 +900,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // This runs after success or error to re-enable the button if it's still visible.
                 if (submitButton.style.display !== 'none') {
                     submitButton.disabled = false;
-                    submitButton.textContent = 'SENDEN';
+                    const buttonText = window.languageManager ? 
+                        window.languageManager.getTranslation('submit_button') : 
+                        'SENDEN';
+                    submitButton.textContent = buttonText;
                 }
             }
         });

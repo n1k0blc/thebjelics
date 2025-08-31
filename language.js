@@ -18,11 +18,14 @@ class LanguageManager {
     
     this.setupScrollListener();
     this.applyTranslations();
+    
+    // Set initial button visibility
+    this.handleScroll();
   }
 
   async loadTranslations() {
     try {
-      const response = await fetch('./translations.json');
+      const response = await fetch('./translations_backup.json');
       this.translations = await response.json();
     } catch (error) {
       console.error('Failed to load translations:', error);
@@ -83,6 +86,39 @@ class LanguageManager {
         this.handleScroll();
       }
     });
+  }
+
+  handleScroll() {
+    const homeButton = document.querySelector('.home-language-toggle');
+    const bannerButton = document.querySelector('.banner-language-toggle');
+    
+    if (!homeButton || !bannerButton) return;
+    
+    // Get the banner section
+    const eventSection = document.getElementById('event');
+    if (!eventSection) return;
+    
+    const eventSectionTop = eventSection.offsetTop;
+    const scrollY = window.scrollY;
+    const threshold = 100; // Buffer zone
+    
+    // Show home button when at top, banner button when in event section and below
+    if (scrollY < eventSectionTop - threshold) {
+      // At the top - show home button, hide banner button
+      homeButton.style.display = 'block';
+      bannerButton.style.display = 'none';
+    } else {
+      // In event section and below - hide home button, show banner button
+      homeButton.style.display = 'none';
+      bannerButton.style.display = 'block';
+    }
+    
+    // Handle background color change for better visibility
+    if (scrollY > 50) {
+      homeButton.classList.add('black-bg');
+    } else {
+      homeButton.classList.remove('black-bg');
+    }
   }
 
   // Get current translation for a key

@@ -4,7 +4,7 @@ ALTER SEQUENCE rsvps_id_seq RESTART WITH 1;
 INSERT INTO rsvps (first_name, last_name) VALUES
 ('Branko', 'Bjelic'),
 ('Jadranka', 'Bjelic'),
-('Frederick', 'Faller'),
+('Frederik', 'Faller'),
 ('Janine', 'von Collas'),
 ('Tabea', 'Huber'),
 ('Jan', 'Schneider'),

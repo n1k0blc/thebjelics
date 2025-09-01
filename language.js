@@ -25,7 +25,7 @@ class LanguageManager {
 
   async loadTranslations() {
     try {
-      const response = await fetch('./translations_backup.json');
+      const response = await fetch('./translations.json');
       this.translations = await response.json();
     } catch (error) {
       console.error('Failed to load translations:', error);
@@ -142,8 +142,15 @@ class LanguageManager {
 
   toggleLanguage() {
     this.currentLanguage = this.currentLanguage === 'de' ? 'en' : 'de';
+    // Update the HTML lang attribute so other components can detect language changes
+    document.documentElement.lang = this.currentLanguage;
     // Removed localStorage persistence - always reset to German on page load
     this.applyTranslations();
+    
+    // Dispatch custom event for other widgets to listen to
+    document.dispatchEvent(new CustomEvent('languageChanged', {
+      detail: { language: this.currentLanguage }
+    }));
   }
 
   applyTranslations() {

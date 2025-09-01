@@ -59,16 +59,27 @@
   </p>
 </div>
 
-<!-- Weather Widget for Koh Samui -->
-<div class="weather-widget">
-  <div class="weather-header">
-    <h3 data-translate="weather_title">Aktuelles Wetter in Koh Samui</h3>
-    <span class="weather-last-update" id="lastUpdate"></span>
+<!-- Widget Container for Weather and Time -->
+<div class="widget-container">
+  <!-- Weather Widget for Koh Samui - Minimal -->
+  <div class="weather-widget">
+    <div class="weather-content" id="weatherContent">
+      <div class="weather-loading">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span data-translate="weather_loading">Lade Wetterdaten...</span>
+      </div>
+    </div>
   </div>
-  <div class="weather-content" id="weatherContent">
-    <div class="weather-loading">
-      <i class="fas fa-spinner fa-spin"></i>
-      <span data-translate="weather_loading">Lade Wetterdaten...</span>
+  
+  <!-- Time Widget for Koh Samui -->
+  <div class="time-widget">
+    <div class="time-content" id="timeContent">
+      <div class="time-location">Koh Samui</div>
+      <div class="time-main-info">
+        <div class="time-icon">🕐</div>
+        <div class="time-display" id="currentTime">--:--</div>
+      </div>
+      <div class="time-date" id="currentDate">--</div>
     </div>
   </div>
 </div>
@@ -291,7 +302,6 @@
     class WeatherWidget {
       constructor() {
         this.weatherContent = document.getElementById('weatherContent');
-        this.lastUpdateElement = document.getElementById('lastUpdate');
         this.currentLanguage = 'de';
         
         // Initialize weather
@@ -466,38 +476,17 @@
       }
 
       displayWeather(weather) {
-        const description = this.currentLanguage === 'de' 
-          ? (WEATHER_DESCRIPTIONS_DE[weather.current.description] || weather.current.description)
-          : weather.current.description;
-
         const html = `
-          <div class="weather-main">
+          <div class="weather-location">Koh Samui</div>
+          <div class="weather-main-info">
             <div class="weather-icon">
               ${WEATHER_ICONS[weather.current.icon] || '🌤️'}
             </div>
-            <div class="weather-temp">
-              <div class="current">${weather.current.temp}°C</div>
-              <div class="description">${description}</div>
-            </div>
-            <div class="weather-info">
-              <div><strong>${this.currentLanguage === 'de' ? 'Gefühlt' : 'Feels like'}:</strong> ${weather.current.feelsLike}°C</div>
-              <div><strong>${this.currentLanguage === 'de' ? 'Luftfeuchtigkeit' : 'Humidity'}:</strong> ${weather.current.humidity}%</div>
-              <div><strong>${this.currentLanguage === 'de' ? 'Wind' : 'Wind'}:</strong> ${weather.current.windSpeed} km/h</div>
-            </div>
-          </div>
-          <div class="weather-forecast">
-            ${weather.forecast.map(day => `
-              <div class="forecast-day">
-                <div class="day">${day.day}</div>
-                <div class="icon">${WEATHER_ICONS[day.icon] || '🌤️'}</div>
-                <div class="temp">${day.temp}</div>
-              </div>
-            `).join('')}
+            <div class="weather-temp-simple">${weather.current.temp}°C</div>
           </div>
         `;
 
         this.weatherContent.innerHTML = html;
-        this.updateLastUpdateTime();
       }
 
       showLoading() {
@@ -517,25 +506,91 @@
           </div>
         `;
       }
+    }
 
-      updateLastUpdateTime() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString(this.currentLanguage === 'de' ? 'de-DE' : 'en-US', {
-          hour: '2-digit',
-          minute: '2-digit'
+    class TimeWidget {
+      constructor() {
+        this.timeElement = document.getElementById('currentTime');
+        this.dateElement = document.getElementById('currentDate');
+        this.currentLanguage = document.documentElement.lang || 'de';
+        
+        // Initialize time display
+        this.updateTime();
+        
+        // Update every second
+        setInterval(() => this.updateTime(), 1000);
+        
+        // Listen for custom language change event
+        document.addEventListener('languageChanged', (e) => {
+          this.currentLanguage = e.detail.language;
+          this.updateTime();
         });
         
-        const updateText = this.currentLanguage === 'de' 
-          ? `Zuletzt aktualisiert: ${timeString}`
-          : `Last updated: ${timeString}`;
-          
-        this.lastUpdateElement.textContent = updateText;
+        // Backup: Listen for language toggle clicks as well
+        document.addEventListener('click', (e) => {
+          if (e.target.closest('.banner-language-toggle') || 
+              e.target.closest('.language-toggle') ||
+              e.target.closest('#languageToggle')) {
+            // Small delay to let the language change complete
+            setTimeout(() => {
+              this.currentLanguage = document.documentElement.lang || 'de';
+              this.updateTime();
+            }, 50);
+          }
+        });
+      }
+
+      updateTime() {
+        // Koh Samui is UTC+7 (Thailand timezone)
+        const now = new Date();
+        const kohSamuiTime = new Date(now.getTime() + (7 * 60 * 60 * 1000) - (now.getTimezoneOffset() * 60 * 1000));
+        
+        // Format time (24-hour format)
+        const timeString = kohSamuiTime.toLocaleTimeString('de-DE', {
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'UTC'
+        });
+        
+        // Format date based on current language
+        const dateOptions = {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          timeZone: 'UTC'
+        };
+        
+        const locale = this.currentLanguage === 'de' ? 'de-DE' : 'en-US';
+        const dateString = kohSamuiTime.toLocaleDateString(locale, dateOptions);
+        
+        this.timeElement.textContent = timeString;
+        this.dateElement.textContent = dateString;
+        
+        // Update icon based on time of day
+        this.updateTimeIcon(kohSamuiTime);
+      }
+      
+      updateTimeIcon(date) {
+        const hour = date.getUTCHours();
+        const iconElement = document.querySelector('.time-icon');
+        
+        if (hour >= 6 && hour < 12) {
+          iconElement.textContent = '🌅'; // Morning
+        } else if (hour >= 12 && hour < 18) {
+          iconElement.textContent = '☀️'; // Afternoon
+        } else if (hour >= 18 && hour < 21) {
+          iconElement.textContent = '🌇'; // Evening
+        } else {
+          iconElement.textContent = '🌙'; // Night
+        }
       }
     }
 
-    // Initialize weather widget when DOM is loaded
+    // Initialize widgets when DOM is loaded
     document.addEventListener('DOMContentLoaded', () => {
       new WeatherWidget();
+      new TimeWidget();
     });
   </script>
   

@@ -980,36 +980,6 @@ document.addEventListener('DOMContentLoaded', () => {
   updateBanner();
 })();
 
-// --- Sticky Banner für Gallery-Seite ---
-(function () {
-  const galleryHeaderRow = document.querySelector('.gallery-header-row');
-  const banner = galleryHeaderRow ? galleryHeaderRow.querySelector('.banner') : null;
-  if (!galleryHeaderRow || !banner) return;
-
-  function updateBanner() {
-    const shouldFix = window.scrollY >= 50; // Fixed threshold for gallery
-
-    if (shouldFix) {
-      if (!banner.classList.contains('is-fixed')) {
-        banner.classList.add('is-fixed');
-      }
-      // Reserve space for the fixed banner
-      const h = banner.offsetHeight;
-      document.documentElement.style.setProperty('--banner-h', h + 'px');
-      document.body.style.paddingTop = `${h}px`;
-    } else {
-      banner.classList.remove('is-fixed');
-      document.documentElement.style.setProperty('--banner-h', '0px');
-      document.body.style.paddingTop = '0';
-    }
-  }
-
-  ['scroll', 'resize', 'load'].forEach(ev =>
-    window.addEventListener(ev, updateBanner, { passive: true })
-  );
-  updateBanner();
-})();
-
 // --- Add to Calendar Functionality ---
 const calendarButtons = document.querySelectorAll('.add-to-calendar-btn');
 

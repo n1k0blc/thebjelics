@@ -533,6 +533,7 @@ body.content-light .menu a:hover {
   text-align: center;
   margin: 1rem 0 2rem;  /* Kein extra Abstand oben */
 }
+
 /* Fixed-State des Banners, sobald wir die Event-Sektion erreicht haben */
 .banner.is-fixed {
   position: fixed;
@@ -554,7 +555,7 @@ body.content-light .menu a:hover {
 }
 
 /* Während das Banner fixed ist, oben Platz reservieren,
-   damit nichts „hochspringt“ */
+   damit nichts „hochspringt" */
 #event.content-section.banner-active {
   padding-top: calc(var(--banner-h, 0px));
 }
@@ -847,178 +848,191 @@ body.content-light .menu a:hover {
   font-family: 'Lora', serif;
 }
 
-/* Weather Widget */
+/* Widget Container for Weather and Time */
+.widget-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 2rem auto;
+  max-width: 900px;
+}
+
+/* Weather Widget - Minimal Design */
 .weather-widget {
-  max-width: 80%;
-  margin: 3rem auto;
-  background: linear-gradient(135deg, #74b9ff, #0984e3);
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  color: white;
-  position: relative;
-  overflow: hidden;
-}
-
-.weather-widget::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.weather-header {
+  flex: 1;
+  max-width: 400px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 15px;
+  padding: 1.5rem;
   text-align: center;
-  margin-bottom: 1.5rem;
-  position: relative;
-  z-index: 2;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
 }
 
-.weather-header h3 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  font-family: 'Inter', sans-serif;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.weather-widget:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.weather-last-update {
-  font-size: 0.85rem;
-  opacity: 0.9;
-  margin-top: 0.5rem;
-  display: block;
+/* Time Widget - Same style as Weather Widget */
+.time-widget {
+  flex: 1;
+  max-width: 400px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 15px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+.time-widget:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .weather-content {
-  position: relative;
-  z-index: 2;
-}
-
-.weather-loading {
-  text-align: center;
-  padding: 2rem;
-  font-size: 1.1rem;
-}
-
-.weather-loading i {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  display: block;
-}
-
-.weather-main {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 2rem;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 2rem;
-}
-
-.weather-icon {
-  font-size: 4rem;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.weather-temp {
-  text-align: center;
-}
-
-.weather-temp .current {
-  font-size: 3rem;
-  font-weight: 700;
-  margin: 0;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.weather-temp .description {
-  font-size: 1.1rem;
-  margin: 0.5rem 0 0 0;
-  opacity: 0.95;
-  text-transform: capitalize;
-}
-
-.weather-info {
-  text-align: right;
-}
-
-.weather-info div {
-  margin-bottom: 0.5rem;
-  font-size: 0.95rem;
-  opacity: 0.95;
-}
-
-.weather-info strong {
-  font-weight: 600;
-}
-
-.weather-forecast {
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
-  padding-top: 1.5rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 1rem;
 }
 
-.forecast-day {
-  text-align: center;
-  padding: 1rem 0.5rem;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-}
-
-.forecast-day .day {
+.weather-location {
   font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  color: #666;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
-.forecast-day .icon {
-  font-size: 1.8rem;
-  margin: 0.5rem 0;
+.weather-main-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-.forecast-day .temp {
-  font-size: 0.9rem;
-  font-weight: 600;
+.weather-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.weather-temp-simple {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #333;
+  line-height: 1;
+}
+
+.weather-description-simple {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.5rem;
+  text-transform: capitalize;
+}
+
+.weather-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  color: #666;
+}
+
+.weather-loading i {
+  font-size: 1.5rem;
 }
 
 .weather-error {
   text-align: center;
-  padding: 2rem;
-  background: rgba(231, 76, 60, 0.9);
-  border-radius: 12px;
+  padding: 1rem;
+  background: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 10px;
+  color: #c53030;
 }
 
 .weather-error i {
-  font-size: 2rem;
-  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
   display: block;
 }
 
+.weather-error i {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Time Widget Specific Styles */
+.time-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.time-location {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.time-main-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.time-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.time-display {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #333;
+  line-height: 1;
+  font-family: 'Inter', monospace;
+}
+
+.time-date {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
 @media (max-width: 768px) {
-  .weather-widget {
-    max-width: 95%;
-    margin: 2rem auto;
-    padding: 1.5rem;
-  }
-  
-  .weather-main {
-    grid-template-columns: 1fr;
-    text-align: center;
+  .widget-container {
+    flex-direction: column;
     gap: 1.5rem;
+    margin: 1.5rem auto;
   }
   
-  .weather-info {
-    text-align: center;
+  .weather-widget,
+  .time-widget {
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 1rem;
   }
   
-  .weather-forecast {
-    grid-template-columns: repeat(2, 1fr);
+  .weather-main-info,
+  .time-main-info {
+    gap: 0.75rem;
+  }
+  
+  .weather-temp-simple,
+  .time-display {
+    font-size: 2rem;
+  }
+  
+  .weather-icon,
+  .time-icon {
+    font-size: 2rem;
   }
 }
 
@@ -1744,37 +1758,25 @@ body.content-light .menu a:hover {
   margin: 0;
 }
 
-.travel-header-row .banner .travel-back-button {
-  position: absolute;
-  left: 2rem;
-  top: 0;
-  z-index: 10;
-  margin: 0;
-}
-
-.travel-header-row .banner hr {
-  border: 1px solid black;
-  width: 100vw;
-  margin: 1rem calc(50% - 50vw) 1.5rem;
-}
-
-.travel-header-row .banner h2 {
-  font-size: 2rem;
-  font-weight: 10;
-  margin: 0;
-}
-
 /* Fixed Banner für Travel-Seite beim Scrollen */
 .travel-header-row .banner.is-fixed {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  background: #f7f6f4;    /* gleiche Farbe wie Content */
-  z-index: 90;            /* unter Hamburger/Overlay (99/101), aber über Inhalt */
+  background: #f7f6f4;
+  z-index: 90;
   margin: 0;
-  padding: 0.5rem 2rem 0;  /* kompakter Padding */
-  box-shadow: 0 1px 0 rgba(0,0,0,0.2); /* feine Linie unten */
+  padding: 0.5rem 2rem 0;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+}
+
+.travel-header-row .banner .travel-back-button {
+  position: absolute;
+  left: 2rem;
+  top: 0;
+  z-index: 10;
+  margin: 0;
 }
 
 .travel-header-row .banner.is-fixed .travel-back-button {
@@ -1784,11 +1786,23 @@ body.content-light .menu a:hover {
   z-index: 10;
 }
 
-.travel-header-row .banner.is-fixed hr {
-  display: block;
-  margin: 0.25rem calc(50% - 50vw) 0;   /* minimaler Abstand */
+.travel-header-row .banner hr {
   border: 1px solid black;
   width: 100vw;
+  margin: 1rem calc(50% - 50vw) 1.5rem;
+}
+
+.travel-header-row .banner.is-fixed hr {
+  display: block;
+  margin: 0.25rem calc(50% - 50vw) 0;
+  border: 1px solid black;
+  width: 100vw;
+}
+
+.travel-header-row .banner h2 {
+  font-size: 2rem;
+  font-weight: 10;
+  margin: 0;
 }
 
 /* Passport Reminder Text */
@@ -1816,6 +1830,33 @@ body.content-light .menu a:hover {
   font-family: 'Lora', serif;
 }
 
+/* Gallery page banner sticky styles - same as travel page */
+.gallery-content .travel-header-row .banner.is-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #f7f6f4;
+  z-index: 90;
+  margin: 0;
+  padding: 0.5rem 2rem 0;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+}
+
+.gallery-content .travel-header-row .banner.is-fixed .travel-back-button {
+  position: absolute;
+  left: 2rem;
+  top: 0.5rem;
+  z-index: 10;
+}
+
+.gallery-content .travel-header-row .banner.is-fixed hr {
+  display: block;
+  margin: 0.25rem calc(50% - 50vw) 0;
+  border: 1px solid black;
+  width: 100vw;
+}
+
 /* Gallery-Header-Zeile: Nur Banner */
 .gallery-header-row {
   position: relative;
@@ -1831,37 +1872,25 @@ body.content-light .menu a:hover {
   margin: 0;
 }
 
-.gallery-header-row .banner .travel-back-button {
-  position: absolute;
-  left: 2rem;
-  top: 0;
-  z-index: 10;
-  margin: 0;
-}
-
-.gallery-header-row .banner hr {
-  border: 1px solid black;
-  width: 100vw;
-  margin: 1rem calc(50% - 50vw) 1.5rem;
-}
-
-.gallery-header-row .banner h2 {
-  font-size: 2rem;
-  font-weight: 10;
-  margin: 0;
-}
-
 /* Fixed Banner für Gallery-Seite beim Scrollen */
 .gallery-header-row .banner.is-fixed {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  background: #f7f6f4;    /* gleiche Farbe wie Content */
-  z-index: 90;            /* unter Hamburger/Overlay (99/101), aber über Inhalt */
+  background: #f7f6f4;
+  z-index: 90;
   margin: 0;
-  padding: 0.5rem 2rem 0;  /* kompakter Padding */
-  box-shadow: 0 1px 0 rgba(0,0,0,0.2); /* feine Linie unten */
+  padding: 0.5rem 2rem 0;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+}
+
+.gallery-header-row .banner .travel-back-button {
+  position: absolute;
+  left: 2rem;
+  top: 0;
+  z-index: 10;
+  margin: 0;
 }
 
 .gallery-header-row .banner.is-fixed .travel-back-button {
@@ -1871,11 +1900,23 @@ body.content-light .menu a:hover {
   z-index: 10;
 }
 
-.gallery-header-row .banner.is-fixed hr {
-  display: block;
-  margin: 0.25rem calc(50% - 50vw) 0;   /* minimaler Abstand */
+.gallery-header-row .banner hr {
   border: 1px solid black;
   width: 100vw;
+  margin: 1rem calc(50% - 50vw) 1.5rem;
+}
+
+.gallery-header-row .banner.is-fixed hr {
+  display: block;
+  margin: 0.25rem calc(50% - 50vw) 0;
+  border: 1px solid black;
+  width: 100vw;
+}
+
+.gallery-header-row .banner h2 {
+  font-size: 2rem;
+  font-weight: 10;
+  margin: 0;
 }
 
 /* Gallery Section */
@@ -1961,10 +2002,5 @@ body.content-light .menu a:hover {
     left: 1rem;
     padding: 0.6rem 1.5rem;
     font-size: 0.8rem;
-  }
-  
-  .gallery-header-row .banner.is-fixed .travel-back-button {
-    left: 1rem;
-    top: 0.4rem;
   }
 }

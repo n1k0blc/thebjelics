@@ -930,6 +930,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dresscodeSection = document.getElementById('dresscode');
         const faqSection = document.getElementById('FAQ');
         const rsvpSection = document.getElementById('rsvp');
+        const isMobile = window.innerWidth <= 768;
 
         const inSection = (section) => {
             if (!section) return false;
@@ -938,10 +939,21 @@ document.addEventListener('DOMContentLoaded', () => {
             return scrollY >= top && scrollY < top + height;
         };
 
-        if (inSection(homeSection) || inSection(eventSection) || inSection(locationSection) || inSection(dresscodeSection) || inSection(faqSection) || inSection(rsvpSection)) {
-            hamburgerBtn.classList.add('black-bg');
+        // Mobile: Weiß auf Home, Schwarz auf anderen Sektionen
+        // Desktop: Ursprüngliche Logik beibehalten
+        if (isMobile) {
+            if (inSection(homeSection)) {
+                hamburgerBtn.classList.remove('black-bg'); // Weiß auf Home
+            } else {
+                hamburgerBtn.classList.add('black-bg'); // Schwarz auf anderen Sektionen
+            }
         } else {
-            hamburgerBtn.classList.remove('black-bg');
+            // Desktop Logik (ursprünglich)
+            if (inSection(homeSection) || inSection(eventSection) || inSection(locationSection) || inSection(dresscodeSection) || inSection(faqSection) || inSection(rsvpSection)) {
+                hamburgerBtn.classList.add('black-bg');
+            } else {
+                hamburgerBtn.classList.remove('black-bg');
+            }
         }
     }
 
@@ -1061,6 +1073,36 @@ END:VCALENDAR`;
     
     // Clean up
     window.URL.revokeObjectURL(link.href);
+}
+
+// FAQ Section Functionality - Simple Click to Toggle
+function initializeFAQSections() {
+    const faqBoxes = document.querySelectorAll('.faq-box');
+    
+    faqBoxes.forEach(box => {
+        const header = box.querySelector('h2');
+        
+        if (header) {
+            header.addEventListener('click', () => {
+                // Close all other FAQ boxes
+                faqBoxes.forEach(otherBox => {
+                    if (otherBox !== box) {
+                        otherBox.classList.remove('expanded');
+                    }
+                });
+                
+                // Toggle current FAQ box
+                box.classList.toggle('expanded');
+            });
+        }
+    });
+}
+
+// Initialize FAQ sections when DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeFAQSections);
+} else {
+    initializeFAQSections();
 }
 
 });

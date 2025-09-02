@@ -588,24 +588,13 @@ body.content-light .menu a:hover {
 
 .location-wrapper {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
   max-width: 1200px;
   width: 100%;
+  flex-wrap: wrap;
+  gap: 2rem;
   text-align: center;
-  gap: 2rem;
-}
-
-.location-header {
-  width: 100%;
-}
-
-.location-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  gap: 2rem;
 }
 
 .location-left,
@@ -616,6 +605,7 @@ body.content-light .menu a:hover {
   letter-spacing: 0.05rem;
   line-height: 1.5;
 }
+
 
 .location-center {
   flex: 2;
@@ -647,10 +637,6 @@ body.content-light .menu a:hover {
   transform: scale(1.02);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   cursor: pointer;
-}
-
-.location-footer {
-  width: 100%;
 }
 
 .location-button-wrapper {
@@ -1328,194 +1314,6 @@ body.content-light .menu a:hover {
   .content-section p {
       font-size: 0.9rem;
   }
-
-  /* Einheitliche Schriftgröße für alle p-Elemente im Mobile-View */
-  p {
-      font-size: 1rem !important;
-      line-height: 1.6 !important;
-  }
-
-  /* Travel Page Mobile Optimizations */
-  .travel-back-button {
-      font-size: 0;
-      padding: 0.6rem;
-      width: 3rem;
-      height: 3rem;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-  }
-
-  .travel-back-button::before {
-      content: "←";
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: white;
-  }
-
-  /* Hamburger Menu kleiner für Mobile (schon vorhanden, aber zur Klarstellung) */
-  .hamburger-btn {
-      width: 1.5rem;
-      height: 1.5rem;
-  }
-
-  .hamburger-btn .bar {
-      width: 1.5rem;
-      height: 1.5px;
-      background-color: white;
-  }
-
-  .hamburger-btn .bar:nth-child(1) {
-      top: 0.15rem;
-  }
-
-  .hamburger-btn .bar:nth-child(2) {
-      top: 0.7rem;
-  }
-
-  .hamburger-btn .bar:nth-child(3) {
-      top: 1.25rem;
-  }
-
-  .hamburger-btn.active .bar:nth-child(1) {
-      top: 0.7rem;
-  }
-
-  .hamburger-btn.active .bar:nth-child(3) {
-      top: 0.7rem;
-  }
-
-  .hamburger-btn.black-bg .bar {
-      background-color: black;
-  }
-
-  .hamburger-btn.active .bar {
-      background-color: black !important;
-  }
-
-  /* Location Section Mobile Layout */
-  #location {
-      padding: 3rem 1rem;
-  }
-
-  .location-wrapper {
-      gap: 1.5rem;
-  }
-
-  .location-content {
-      display: block;
-      width: 100%;
-      text-align: center;
-  }
-
-  .location-center {
-      display: block;
-      margin-bottom: 1.5rem;
-  }
-
-  .location-center img {
-      max-width: 320px;
-  }
-
-  .location-left,
-  .location-right {
-      font-size: 1rem;
-      line-height: 1.5;
-      width: 45%;
-      display: inline-block;
-      vertical-align: top;
-      text-align: center;
-      margin: 0 2.5%;
-  }
-
-  .section-title {
-      font-size: 2.2rem;
-      margin-bottom: 1rem;
-  }
-
-  .location-center .location-button-wrapper {
-      order: 4;
-      position: static;
-      margin-top: 2rem;
-      width: auto;
-  }
-
-  .section-title {
-      font-size: 2.2rem;
-      margin-bottom: 1rem;
-  }
-
-  /* FAQ Section Mobile Layout */
-  .FAQ-section .faq-container {
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-      margin-top: 2rem;
-  }
-
-  .FAQ-section .faq-box {
-      padding: 0;
-      border: 1px solid #e0e0e0;
-      border-radius: 12px;
-      background-color: #f7f6f4;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      transition: all 0.3s ease;
-      overflow: hidden;
-  }
-
-  .faq-box h2 {
-      font-size: 1rem;
-      min-height: auto;
-      margin: 0;
-      padding: 1.5rem;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      font-weight: bold;
-      text-transform: none;
-      letter-spacing: 0.02rem;
-      text-align: center;
-  }
-
-  .faq-box h2::after {
-      display: none;
-  }
-
-  .faq-box.expanded h2::after {
-      display: none;
-  }
-
-  .faq-box-content {
-      overflow: hidden;
-      transition: max-height 0.3s ease, opacity 0.3s ease;
-      max-height: 0;
-      opacity: 0;
-      position: relative;
-      padding: 0 1.5rem;
-  }
-
-  .faq-box.expanded .faq-box-content {
-      max-height: 1000px;
-      opacity: 1;
-      padding: 0 1.5rem 1.5rem;
-  }
-
-  .faq-box.expanded .faq-box-content::after {
-      display: none;
-  }
-
-  .faq-box.expanded .faq-box-content:hover::after {
-      display: none;
-  }
-
-  .faq-box p {
-      font-size: 1rem;
-      line-height: 1.6;
-      margin: 0;
-      text-align: center;
-  }
 }
 
 .activity {
@@ -2191,75 +1989,6 @@ body.content-light .menu a:hover {
 
 /* Responsive Design für Gallery */
 @media (max-width: 768px) {
-  /* Mobile Hintergrundbild für Home Section */
-  #home.content-section {
-    background: url('Nadja_Niko.JPG') no-repeat center center;
-    background-size: cover;
-    background-attachment: scroll; /* Fixed kann auf Mobile problematisch sein */
-    background-color: #f0f0f0; /* Fallback-Farbe zum Debuggen */
-  }
-  
-  /* Hamburger Menü kleiner für Mobile */
-  .hamburger-btn {
-    width: 1.5rem;  /* Kleiner von 2rem auf 1.5rem */
-    height: 1.5rem;
-  }
-  
-  .hamburger-btn .bar {
-    width: 1.5rem;  /* Balken auch kleiner */
-    height: 1.5px;  /* Dünner von 2px auf 1.5px */
-    background-color: white; /* Standard weiß auf Home Section */
-  }
-  
-  /* Angepasste Positionen für kleinere Balken */
-  .hamburger-btn .bar:nth-child(1) {
-    top: 0.15rem;
-  }
-  
-  .hamburger-btn .bar:nth-child(2) {
-    top: 0.7rem;
-  }
-  
-  .hamburger-btn .bar:nth-child(3) {
-    top: 1.25rem;
-  }
-  
-  /* X-Zustand für kleinere Balken */
-  .hamburger-btn.active .bar:nth-child(1) {
-    top: 0.7rem;
-  }
-  
-  .hamburger-btn.active .bar:nth-child(3) {
-    top: 0.7rem;
-  }
-  
-  .hamburger-btn.black-bg .bar {
-    background-color: black; /* Schwarz auf anderen Sektionen */
-  }
-  
-  .hamburger-btn.active .bar {
-    background-color: black !important; /* Immer schwarz wenn Menu offen */
-  }
-  
-  /* Logo nach unten verschieben für Mobile */
-  .home-logo {
-    margin-top: 15vh; /* Verschiebt das Logo nach unten */
-    width: 70%; /* Etwas größer auf Mobile */
-    max-width: 350px;
-  }
-  
-  /* Countdown zentriert am unteren Rand für Mobile */
-  .countdown {
-    position: absolute;
-    bottom: 4rem; /* Nach oben verschoben von 2rem auf 4rem */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 400px;
-    display: flex;
-    justify-content: center;
-  }
-  
   .gallery-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -2273,96 +2002,5 @@ body.content-light .menu a:hover {
     left: 1rem;
     padding: 0.6rem 1.5rem;
     font-size: 0.8rem;
-  }
-
-  /* Travel Page Mobile Optimierung */
-  .travel-header-row .banner {
-    position: relative;
-    padding: 1rem 0 0.5rem 0;
-    display: block;
-    text-align: center;
-  }
-  
-  .travel-header-row .banner h2 {
-    font-size: 1.5rem !important;
-    margin: 0;
-    line-height: 1;
-    position: relative;
-    z-index: 5;
-  }
-
-  /* Travel Page Mobile Button - Pfeil statt Text */
-  .travel-header-row .banner .travel-back-button {
-    position: absolute;
-    left: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0;
-    padding: 0.4rem;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-  }
-
-  .travel-header-row .banner .travel-back-button::before {
-    content: "←";
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: white;
-  }
-
-  .travel-header-row .banner.is-fixed {
-    padding: 0.75rem 0 0.5rem 0;
-  }
-
-  .travel-header-row .banner.is-fixed .travel-back-button {
-    position: absolute;
-    left: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0;
-    padding: 0.4rem;
-    width: 2rem;
-    height: 2rem;
-    z-index: 10;
-  }
-
-  .travel-header-row .banner.is-fixed .travel-back-button::before {
-    content: "←";
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: white;
-  }
-
-  /* Language Toggle auf einer Linie */
-  .travel-header-row .banner .banner-language-toggle {
-    position: absolute;
-    right: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.2rem;
-    width: 2rem;
-    height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-  }
-
-  .travel-header-row .banner.is-fixed .banner-language-toggle {
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
-  /* HR-Linie unter den Elementen */
-  .travel-header-row .banner hr {
-    margin-top: 0.5rem !important;
-    margin-bottom: 1.5rem !important;
-    position: relative;
-    z-index: 1;
   }
 }

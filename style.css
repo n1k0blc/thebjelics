@@ -2216,7 +2216,7 @@ body.content-light .menu a:hover {
 @media (max-width: 768px) {
   /* Mobile Hintergrundbild für Home Section */
   #home.content-section {
-    background: url('Nadja_Niko.JPG') no-repeat center center;
+    background: url('Nadja_Niko.jpg') no-repeat center center;
     background-size: cover;
     background-attachment: scroll; /* Fixed kann auf Mobile problematisch sein */
     background-color: #f0f0f0; /* Fallback-Farbe zum Debuggen */

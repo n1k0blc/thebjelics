@@ -802,6 +802,9 @@ body.content-light .menu a:hover {
   flex-grow: 1;
   margin: 0;
   display: block;
+  font-size: 1.1rem; /* Gleiche Größe wie Dresscode-Text */
+  line-height: 1.6;
+  font-weight: 400;
 }
 
 .faq-box p a {
@@ -1316,7 +1319,7 @@ body.content-light .menu a:hover {
       flex-wrap: nowrap;
       gap: 0.5rem;
       margin-bottom: 1.5rem;
-      transform: translateY(-1.5rem);
+      transform: translateY(1.5rem); /* Weniger nach oben, mehr nach unten */
   }
   
   .countdown div {
@@ -1560,47 +1563,83 @@ body.content-light .menu a:hover {
   font-weight: 400;
   font-family: 'Lora', serif;
 }
-@media (max-height: 500px) and (orientation: landscape) {
-  .countdown {
-      transform: translateY(-2rem) translateX(-0.2rem);
-      gap: 0.3rem;
-  }
-  .countdown span {
-      font-size: 1.5rem;
-  }
-  .countdown div div {
-      font-size: 0.7rem;
-  }
-  .name-block {
-      transform: translateY(-2rem) translateX(4rem);
-  }
-  .name-nadja {
-      font-size: 2.5rem;
-      transform: translateY(0.6rem) translateX(-5rem);
-  }
-  .name-und {
-      font-size: 2.5rem;
-      transform: translateY(-1rem) translateX(-2rem);
-  }
-  .name-niko {
-      font-size: 2.5rem;
-      transform: translateY(-3.5rem) translateX(-1.5rem);
-  }
-  .date {
-      font-size: 1.5rem;
-      margin-top: 1rem;
-      transform: translateY(1rem);
-  }
-  .location {
-      font-size: 0.9rem;
-      transform: translateY(1rem);
-  }
 
-  .content-section:not(#home) {
-      padding: 1rem;
+/* Rotation-Nachricht standardmäßig versteckt */
+.rotate-message {
+  display: none !important;
+}
+
+/* Smartphone Landscape - Rotation-Nachricht für kleine Mobile Geräte */
+@media screen and (orientation: landscape) and (max-width: 1024px) and (max-height: 600px) {
+  /* Alle Inhalte mit Opacity ausblenden statt display:none */
+  body > *:not(.rotate-message) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    position: relative !important;
+    z-index: -1 !important;
+  }
+  
+  /* Rotation-Nachricht Container */
+  .rotate-message {
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: #f7f6f4 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    z-index: 9999 !important;
+    text-align: center !important;
+    padding: 2rem !important;
+    font-family: 'Lora', serif !important;
+  }
+  
+  /* Smartphone-Icon Animation */
+  .rotate-icon {
+    font-size: 4rem !important;
+    margin-bottom: 2rem !important;
+    animation: rotatePhone 2s ease-in-out infinite !important;
+    color: #333 !important;
+  }
+  
+  /* Animationstext */
+  .rotate-text {
+    font-size: 1.2rem !important;
+    line-height: 1.6 !important;
+    color: #333 !important;
+    max-width: 400px !important;
+    margin: 0 auto !important;
+  }
+  
+  .rotate-text-de {
+    margin-bottom: 1rem !important;
+  }
+  
+  .rotate-text-en {
+    font-style: italic !important;
+    opacity: 0.8 !important;
   }
 }
 
+/* Smartphone-Rotation Animation */
+@keyframes rotatePhone {
+  0% { 
+    transform: rotate(0deg); 
+  }
+  25% { 
+    transform: rotate(90deg); 
+  }
+  75% { 
+    transform: rotate(90deg); 
+  }
+  100% { 
+    transform: rotate(0deg); 
+  }
+}
 
 /* RSVP form styles */
 .rsvp-title {
@@ -2216,10 +2255,10 @@ body.content-light .menu a:hover {
 @media (max-width: 768px) {
   /* Mobile Hintergrundbild für Home Section */
   #home.content-section {
-    background: url('Nadja_Niko.jpg') no-repeat center center;
-    background-size: cover;
-    background-attachment: scroll; /* Fixed kann auf Mobile problematisch sein */
-    background-color: #f0f0f0; /* Fallback-Farbe zum Debuggen */
+    background: url('Nadja_Niko.jpg') no-repeat center center !important;
+    background-size: cover !important;
+    background-attachment: scroll !important; /* Fixed kann auf Mobile problematisch sein */
+    background-color: #f7f6f4; /* Normale Fallback-Farbe */
   }
   
   /* Hamburger Menü kleiner für Mobile */
@@ -2271,16 +2310,32 @@ body.content-light .menu a:hover {
     max-width: 350px;
   }
   
-  /* Countdown zentriert am oberen Rand für Mobile */
+  /* Countdown am oberen Rand zentriert für Mobile Portrait */
   .countdown {
     position: absolute;
-    top: 4rem; /* Am oberen Rand positioniert statt bottom */
+    top: 6rem; /* Am oberen Rand positioniert */
     left: 50%;
     transform: translateX(-50%);
-    width: 90%;
-    max-width: 400px;
+    width: 80%;
+    max-width: 320px; /* Kleiner als vorher */
     display: flex;
     justify-content: center;
+    gap: 0.3rem; /* Kleinerer Abstand */
+  }
+  
+  .countdown div {
+    min-width: 45px; /* Kleinere Boxen */
+  }
+  
+  .countdown span {
+    font-size: 1.4rem; /* Kleinere Zahlen */
+    font-weight: 300;
+  }
+  
+  .countdown div div {
+    font-size: 0.7rem; /* Kleinere Beschriftung */
+    font-weight: 300;
+    opacity: 0.85;
   }
   
   .gallery-grid {
@@ -2518,5 +2573,98 @@ body.content-light .menu a:hover {
   /* Gallery Description Mobile - Zeilenumbruch anzeigen */
   .mobile-break {
     display: inline !important;
+  }
+  
+}
+
+/* Fix für iPad: verhindert verpixelte Hintergründe durch background-attachment: fixed */
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) {
+  #home.content-section {
+    background-attachment: scroll !important;
+    background-position: center center !important;
+    background-size: cover !important;
+  }
+}
+
+/* Spezieller Workaround für Safari auf iOS */
+@supports (-webkit-touch-callout: none) {
+  #home.content-section {
+    background-attachment: scroll !important;
+  }
+}
+
+/* iPad Portrait Mode: Events-Section vertikal zentrieren & FAQ Mobile Layout */
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) 
+  and (orientation: portrait) {
+  /* Events-Section vertikal zentrieren */
+  #event.content-section {
+    justify-content: center !important;
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+  
+  /* Banner-Anpassung für bessere Zentrierung */
+  #event.content-section.banner-active {
+    padding-top: calc(var(--banner-h, 0px) + 1rem) !important;
+  }
+  
+  /* FAQ Mobile Layout für iPad Portrait */
+  .FAQ-section .faq-container {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+    margin-top: 2rem !important;
+  }
+
+  .FAQ-section .faq-box {
+    padding: 0 !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 12px !important;
+    background-color: #f7f6f4 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.3s ease !important;
+    overflow: hidden !important;
+  }
+
+  .faq-box h2 {
+    font-size: 1.1rem !important;
+    min-height: auto !important;
+    margin: 0 !important;
+    padding: 1.5rem !important;
+    cursor: pointer !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    position: relative !important;
+    font-weight: bold !important;
+    text-transform: none !important;
+    letter-spacing: 0.02rem !important;
+    text-align: center !important;
+  }
+
+  .faq-box h2::after {
+    display: none !important;
+  }
+
+  .faq-box.expanded h2::after {
+    display: none !important;
+  }
+
+  .faq-box-content {
+    overflow: hidden !important;
+    transition: max-height 0.3s ease, opacity 0.3s ease !important;
+    max-height: 0 !important;
+    opacity: 0 !important;
+    position: relative !important;
+    padding: 0 1.5rem !important;
+  }
+
+  .faq-box.expanded .faq-box-content {
+    max-height: 1000px !important;
+    opacity: 1 !important;
+    padding: 0 1.5rem 1.5rem !important;
   }
 }

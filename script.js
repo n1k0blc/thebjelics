@@ -931,6 +931,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const faqSection = document.getElementById('FAQ');
         const rsvpSection = document.getElementById('rsvp');
         const isMobile = window.innerWidth <= 768;
+        const isLandscape = window.innerHeight <= 600 && window.orientation !== undefined; // Landscape-Modus erkennen
 
         const inSection = (section) => {
             if (!section) return false;
@@ -939,9 +940,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return scrollY >= top && scrollY < top + height;
         };
 
-        // Mobile: Weiß auf Home, Schwarz auf anderen Sektionen
+        // Mobile oder Landscape: Weiß auf Home, Schwarz auf anderen Sektionen
         // Desktop: Ursprüngliche Logik beibehalten
-        if (isMobile) {
+        if (isMobile || isLandscape) {
             if (inSection(homeSection)) {
                 hamburgerBtn.classList.remove('black-bg'); // Weiß auf Home
             } else {
@@ -960,6 +961,76 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', updateHamburgerColor);
     window.addEventListener('resize', updateHamburgerColor);
     updateHamburgerColor();
+
+    // --- Orientations-Fix für Landscape/Portrait Wechsel ---
+    let lastScrollPosition = 0;
+    let currentSection = 'home';
+    
+    // Aktuelle Section tracken
+    function getCurrentSection() {
+        const sections = ['home', 'event', 'location', 'dresscode', 'FAQ', 'rsvp'];
+        for (let sectionId of sections) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                const rect = section.getBoundingClientRect();
+                if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+                    return sectionId;
+                }
+            }
+        }
+        return 'home';
+    }
+
+    function handleOrientationChange() {
+        // Kurze Verzögerung für Browser-Rendering
+        setTimeout(() => {
+            const isCurrentlyLandscape = window.innerHeight <= 600 && 
+                                       window.innerWidth > window.innerHeight;
+            
+            // Wenn von Landscape zu Portrait gewechselt
+            if (!isCurrentlyLandscape && lastScrollPosition > 0) {
+                // Sanfte Rückkehr zur gespeicherten Position
+                window.scrollTo({
+                    top: lastScrollPosition,
+                    behavior: 'instant' // Sofort, ohne Animation
+                });
+                
+                // Alternative: Zur gespeicherten Section navigieren
+                if (currentSection && currentSection !== 'home') {
+                    const targetSection = document.getElementById(currentSection);
+                    if (targetSection) {
+                        targetSection.scrollIntoView({ 
+                            behavior: 'instant', 
+                            block: 'start' 
+                        });
+                    }
+                }
+                
+                // UI aktualisieren
+                setTimeout(() => {
+                    updateHamburgerColor();
+                    // CSS-Neuberechnung erzwingen
+                    document.documentElement.style.height = 'auto';
+                    document.body.style.height = 'auto';
+                }, 50);
+            }
+            
+            // Wenn zu Landscape gewechselt
+            if (isCurrentlyLandscape) {
+                lastScrollPosition = window.scrollY;
+                currentSection = getCurrentSection();
+            }
+            
+        }, 150); // Längere Verzögerung für stabilere Ergebnisse
+    }
+
+    // Event-Listener für Orientationsänderungen
+    window.addEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener('resize', (e) => {
+        // Nur bei signifikanten Größenänderungen
+        clearTimeout(window.resizeTimeout);
+        window.resizeTimeout = setTimeout(handleOrientationChange, 200);
+    });
 
     // --- Sticky Banner ab der Event-Sektion ---
 (function () {

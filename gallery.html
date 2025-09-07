@@ -32,15 +32,16 @@
             <!-- Header Row mit Banner und Back Button -->
             <div class="travel-header-row">
                 <div class="banner">
-                    <a href="index.html#home" class="travel-back-button">ZURÜCK</a>
+                    <a href="index.html#home" class="travel-back-button" data-translate="travel_back">ZURÜCK</a>
                     <h2>NADJA <span class="ampersand">  &</span> NIKO</h2>
+                    <button class="language-toggle banner-language-toggle" id="languageToggle" aria-label="Switch language"></button>
                     <hr>
                 </div>
             </div>
 
             <!-- Gallery Description -->
             <div class="gallery-description">
-                <p>13 years of love - <span class="impressionist-words">today</span>, <span class="impressionist-words">tomorrow</span>, <span class="impressionist-words">forever</span></p>
+                <p>13 years of love - <br class="mobile-break"><span class="impressionist-words">today</span>, <span class="impressionist-words">tomorrow</span>, <span class="impressionist-words">forever</span></p>
             </div>
 
             <!-- Gallery Grid -->
@@ -192,5 +193,11 @@
           });
         });
     </script>
+
+    <!-- Include password protection script -->
+    <script src="script.js"></script>
+
+    <!-- Include language switching script -->
+    <script src="language.js"></script>
 </body>
 </html>

@@ -1006,7 +1006,7 @@ const eventData = {
     },
     'wedding-ceremony': {
         title: 'Wedding Ceremony & Reception - Nadja & Niko',
-        startDate: '2026-03-11T17:00:00+07:00', // 17:00 Thailand Time
+        startDate: '2026-03-11T16:30:00+07:00', // 16:30 Thailand Time
         endDate: '2026-03-12T00:00:00+07:00',   // 00:00 Thailand Time (next day)
         location: 'https://maps.app.goo.gl/Ldodg3k3wijoWRZu8',
         description: 'The wedding ceremony and reception of Nadja & Niko at Villa Baan Asan'

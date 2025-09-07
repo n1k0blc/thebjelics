@@ -801,9 +801,11 @@ body.content-light .menu a:hover {
   text-align: center !important;
   flex-grow: 1;
   margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
+}
+
+.faq-box p a {
+  display: inline;
 }
 
 #rsvp {
@@ -844,6 +846,18 @@ body.content-light .menu a:hover {
   font-size: 3rem;
   font-weight: 400;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.travel-hero-overlay .travel-guide-text {
+  display: block;
+}
+
+.travel-hero-overlay .location-text {
+  display: block;
 }
 
 .travel-intro-text {
@@ -1052,7 +1066,7 @@ body.content-light .menu a:hover {
 
 /* Travel Sections */
 .travel-sections {
-  max-width: 80%;
+  max-width: 80%; /* Gleiche Breite wie das Hero-Bild */
   margin: 4rem auto;
   display: flex;
   flex-direction: column;
@@ -1060,6 +1074,7 @@ body.content-light .menu a:hover {
 }
 
 .travel-section {
+  width: 100%; /* Volle Breite der verfügbaren Container-Breite */
   text-align: center;
   padding: 2rem;
   border: 1px solid #e0e0e0;
@@ -1097,10 +1112,11 @@ body.content-light .menu a:hover {
   right: 0;
 }
 
-/* Pfeil ausblenden wenn expanded */
+/* Pfeil rotieren wenn expanded */
 .travel-section.expanded h2::after {
-  opacity: 0;
-  visibility: hidden;
+  transform: rotate(180deg);
+  opacity: 1;
+  visibility: visible;
 }
 
 .travel-section-content {
@@ -1114,33 +1130,6 @@ body.content-light .menu a:hover {
 .travel-section.expanded .travel-section-content {
   max-height: 5000px;
   opacity: 1;
-}
-
-/* Pfeil unten rechts als Pseudo-Element - nur sichtbar wenn expanded */
-.travel-section.expanded .travel-section-content::after {
-  content: '▲';
-  position: absolute;
-  bottom: 5px;
-  right: 1px;
-  font-size: 1.2rem;
-  color: #666;
-  cursor: pointer;
-  border-radius: 50%;
-  width: 35px;
-  height: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  z-index: 10;
-  user-select: none;
-  -webkit-user-select: none;
-  pointer-events: auto;
-}
-
-.travel-section.expanded .travel-section-content:hover::after {
-  color: #333;
-  transform: scale(1.1);
 }
 
 /* Remove button styles - nicht mehr verwendet */
@@ -1198,7 +1187,31 @@ body.content-light .menu a:hover {
 /* Responsive Design für Travel Sections */
 @media (max-width: 768px) {
   .travel-sections {
+    max-width: 100% !important; /* Volle Breite statt 80% */
+    margin: 4rem 1rem !important; /* Seitenabstand für bessere Lesbarkeit */
     gap: 2rem;
+  }
+
+  /* Travel Sections Mobile - keine Pfeile, wie FAQ Boxes */
+  .travel-section h2::after {
+    display: none !important; /* Pfeile komplett ausblenden */
+  }
+
+  .travel-section.expanded h2::after {
+    display: none !important; /* Auch im expanded Zustand keine Pfeile */
+  }
+
+  /* Travel Section Text Mobile - kleinere Schriftgrößen für bessere Lesbarkeit */
+  .travel-section li {
+    font-size: 1rem !important; /* Kleiner: von 1.1rem auf 1rem */
+  }
+
+  .travel-section li a {
+    font-size: 1rem !important; /* Kleiner: von 1.1rem auf 1rem */
+  }
+
+  .travel-section p {
+    font-size: 1rem !important; /* Kleiner: von 1.1rem auf 1rem für Konsistenz */
   }
 }
 
@@ -1515,6 +1528,11 @@ body.content-light .menu a:hover {
       line-height: 1.6;
       margin: 0;
       text-align: center;
+      display: block;
+  }
+
+  .faq-box p a {
+      display: inline;
   }
 }
 
@@ -2156,6 +2174,11 @@ body.content-light .menu a:hover {
   display: inline-block;
 }
 
+/* Mobile break - standardmäßig versteckt */
+.mobile-break {
+  display: none;
+}
+
 /* Gallery Grid - 2 Spalten */
 .gallery-grid {
   display: grid;
@@ -2248,10 +2271,10 @@ body.content-light .menu a:hover {
     max-width: 350px;
   }
   
-  /* Countdown zentriert am unteren Rand für Mobile */
+  /* Countdown zentriert am oberen Rand für Mobile */
   .countdown {
     position: absolute;
-    bottom: 4rem; /* Nach oben verschoben von 2rem auf 4rem */
+    top: 4rem; /* Am oberen Rand positioniert statt bottom */
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
@@ -2275,6 +2298,38 @@ body.content-light .menu a:hover {
     font-size: 0.8rem;
   }
 
+  /* Gallery Page Mobile Button - same as Travel Page */
+  .gallery-content .travel-header-row .banner .travel-back-button {
+    position: absolute;
+    left: 0.3rem;
+    top: 38%;
+    transform: translateY(-50%);
+    font-size: 0;
+    padding: 0.4rem;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+  }
+
+  .gallery-content .travel-header-row .banner .travel-back-button::before {
+    content: "←";
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+  }
+
+  .gallery-content .travel-header-row .banner.is-fixed .travel-back-button {
+    position: absolute;
+    left: 0.75rem;
+    top: 62%;
+    transform: translateY(-50%);
+    font-size: 0;
+    padding: 0.4rem;
+    width: 2rem;
+    height: 2rem;
+    z-index: 10;
+  }
+
   /* Travel Page Mobile Optimierung */
   .travel-header-row .banner {
     position: relative;
@@ -2294,13 +2349,13 @@ body.content-light .menu a:hover {
   /* Travel Page Mobile Button - Pfeil statt Text */
   .travel-header-row .banner .travel-back-button {
     position: absolute;
-    left: 0.75rem;
-    top: 50%;
+    left: 0.3rem;
+    top: 38%;
     transform: translateY(-50%);
     font-size: 0;
     padding: 0.4rem;
-    width: 2rem;
-    height: 2rem;
+    width: 1.8rem;
+    height: 1.8rem;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -2322,7 +2377,7 @@ body.content-light .menu a:hover {
   .travel-header-row .banner.is-fixed .travel-back-button {
     position: absolute;
     left: 0.75rem;
-    top: 50%;
+    top: 62%;
     transform: translateY(-50%);
     font-size: 0;
     padding: 0.4rem;
@@ -2341,10 +2396,10 @@ body.content-light .menu a:hover {
   /* Language Toggle auf einer Linie */
   .travel-header-row .banner .banner-language-toggle {
     position: absolute;
-    right: 0.75rem;
-    top: 50%;
+    right: 0.1rem;
+    top: 42%;
     transform: translateY(-50%);
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     width: 2rem;
     height: 2rem;
     display: flex;
@@ -2354,15 +2409,114 @@ body.content-light .menu a:hover {
   }
 
   .travel-header-row .banner.is-fixed .banner-language-toggle {
-    top: 50%;
+    top: 60%;
     transform: translateY(-50%);
   }
 
-  /* HR-Linie unter den Elementen */
+  /* HR-Linie unter den Elementen - mit sticky aber ohne extra Raum */
   .travel-header-row .banner hr {
     margin-top: 0.5rem !important;
     margin-bottom: 1.5rem !important;
     position: relative;
     z-index: 1;
+  }
+
+  .travel-header-row .banner.is-fixed {
+    padding: 0.75rem 0 0 0 !important;
+  }
+
+  .travel-header-row .banner.is-fixed hr {
+    margin-top: 0.5rem !important;
+    margin-bottom: 0 !important;
+    display: block;
+  }
+
+  /* Travel Hero Bild Mobile - niedriger und breiter */
+  .travel-hero {
+    height: 40vh !important; /* niedriger: von 60vh auf 40vh */
+  }
+
+  .travel-hero img {
+    width: 100% !important; /* breiter: von 80% auf 100% */
+    height: 100% !important; /* Höhe angepasst */
+  }
+
+  .travel-hero-overlay .schedule-title {
+    font-size: 2rem !important; /* Text etwas kleiner für Mobile */
+    height: 100% !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 2rem 1rem !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .travel-hero-overlay .travel-guide-text {
+    align-self: center !important;
+    margin-top: 1rem !important;
+  }
+
+  .travel-hero-overlay .location-text {
+    align-self: center !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .travel-hero-overlay {
+    top: 50% !important;
+    width: 100% !important;
+    height: 100% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  /* Travel Text an Bildbreite anpassen - 100% wie das Bild */
+  .travel-intro-text {
+    max-width: 100% !important;
+    padding: 0 1rem; /* Etwas Innenabstand für Lesbarkeit */
+  }
+
+  /* Widgets Mobile - gleich groß und größer */
+  .widget-container {
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+    margin: 2rem 1rem !important;
+    max-width: none !important;
+  }
+
+  .weather-widget,
+  .time-widget {
+    flex: none !important;
+    max-width: none !important;
+    width: 100% !important;
+    padding: 2rem 1.5rem !important; /* Größer: mehr Padding */
+    font-size: 1.1rem !important; /* Größere Schrift */
+  }
+
+  .weather-main-info,
+  .time-content {
+    font-size: 1.2rem !important; /* Noch größere Hauptinhalte */
+  }
+
+  /* Dresscode Text Mobile - zentrieren */
+  .dresscode-text {
+    text-align: center !important; /* Zentrieren statt linksbündig */
+  }
+
+  .dresscode-text h3 {
+    text-align: center !important; /* Auch die Überschrift zentrieren */
+  }
+
+  /* Google Maps iframe Mobile - Höhe reduzieren */
+  .google-map-embed iframe {
+    height: 600px; /* Reduziert von 800px auf 400px für Mobile */
+    width: 95%; /* Etwas breiter für Mobile */
+  }
+
+  /* Gallery Description Mobile - Zeilenumbruch anzeigen */
+  .mobile-break {
+    display: inline !important;
   }
 }

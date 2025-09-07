@@ -45,7 +45,10 @@
       <div class="travel-hero">
         <img src="Koh_Samui.jpg" alt="Koh Samui">
           <div class="travel-hero-overlay">
-            <h2 class="schedule-title">TRAVEL GUIDE: <br> KOH SAMUI</h2>
+            <h2 class="schedule-title">
+              <span class="travel-guide-text">TRAVEL GUIDE:</span>
+              <span class="location-text">KOH SAMUI</span>
+            </h2>
           </div>
       </div>
       </div>
@@ -136,7 +139,7 @@
     <br><br>
     Tipp: <strong>Bucht direkt bei der Airline</strong> – so seid ihr bei Umbuchungen oder Stornos immer auf der sicheren Seite.  
     <br><br>
-    Diese Airlines fliegen direkt von Frankfurt nach Bangkok und haben sich bei uns bewährt:
+    Diese Airlines fliegen von Frankfurt nach Bangkok und haben sich bei uns bewährt:
   </p>
 
   <ul>
@@ -146,6 +149,8 @@
     <li><a href="https://www.qatarairways.com/de-de/homepage.html" target="_blank" rel="noopener noreferrer">Qatar Airways</a></li>
     <li><a href="https://www.singaporeair.com/de_DE/" target="_blank" rel="noopener noreferrer">Singapore Airlines</a></li>
     <li><a href="https://www.etihad.com/de-de/" target="_blank" rel="noopener noreferrer">Etihad</a></li>
+    <li><a href="https://www.turkishairlines.com/en-de/index.html?gclsrc=aw.ds&gad_source=1&gad_campaignid=18479907107&gbraid=0AAAAADpYxIjiD9EqEJJtP1w1T6htp1L--&gclid=CjwKCAjw2vTFBhAuEiwAFaScwn8uCkE75YVyTW_OGI3TSBbzU4wBBUoqldIrWkUsYO1M6kbXjrty3hoCkq4QAvD_BwE" target="_blank" rel="noopener noreferrer">Turkish Airlines</a></li>
+    <li><a href="https://www.condor.com/de" target="_blank" rel="noopener noreferrer">Condor</a></li>
   </ul>
 
   <p data-translate="arrival_info_2" data-translate-html>
@@ -631,171 +636,14 @@
       });
     });
 
-    // Travel section toggle functionality
-    document.querySelectorAll('.travel-section h2').forEach(function(header) {
-      header.addEventListener('click', function(e) {
-        console.log('🔥 Header clicked');
-        
-        e.preventDefault(); 
-        const section = this.parentElement;
-        const isCurrentlyExpanded = section.classList.contains('expanded');
-        const openSections = document.querySelectorAll('.travel-section.expanded');
-        const hasOtherOpenSections = openSections.length > 0 && !isCurrentlyExpanded;
-        
-        // If we're opening a new section while another is open, treat it like closing the old one first
-        if (hasOtherOpenSections) {
-          console.log('🔄 Switching sections - applying close logic first');
-          
-          // Store current scroll position and prevent automatic scrolling
-          const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-          console.log('📍 Current scroll position:', currentScrollTop);
-          
-          // Calculate target position for the new section header
-          const newHeaderRect = this.getBoundingClientRect();
-          const targetScrollTop = currentScrollTop + newHeaderRect.top - 100; // 100px buffer above header
-          
-          // Apply scroll lock temporarily
-          const originalOverflow = document.body.style.overflow;
-          const originalPosition = document.body.style.position;
-          const originalTop = document.body.style.top;
-          
-          document.body.style.overflow = 'hidden';
-          document.body.style.position = 'fixed';
-          document.body.style.top = -currentScrollTop + 'px';
-          document.body.style.width = '100%';
-          
-          // Close other sections and open this one
-          openSections.forEach(function(otherSection) {
-            if (otherSection !== section) {
-              console.log('❌ Closing other section');
-              otherSection.classList.remove('expanded');
-            }
-          });
-          
-          console.log('✅ Opening new section');
-          section.classList.add('expanded');
-          
-          // Restore scroll and position to new section
-          setTimeout(() => {
-            console.log('🔓 Restoring scroll and positioning to new section');
-            document.body.style.overflow = originalOverflow;
-            document.body.style.position = originalPosition;
-            document.body.style.top = originalTop;
-            document.body.style.width = '';
-            
-            console.log('📍 Scrolling to new section position:', targetScrollTop);
-            window.scrollTo(0, Math.max(0, targetScrollTop));
-          }, 50);
-          
-        } else {
-          // Normal behavior - either opening the first section or toggling the current one
-          const scrollBefore = window.pageYOffset || document.documentElement.scrollTop;
-          console.log('📍 Scroll before action:', scrollBefore);
-          
-          // Close all other sections first (shouldn't be any, but just to be safe)
-          document.querySelectorAll('.travel-section.expanded').forEach(function(otherSection) {
-            if (otherSection !== section) {
-              otherSection.classList.remove('expanded');
-            }
-          });
-          
-          // Toggle this section
-          if (isCurrentlyExpanded) {
-            console.log('❌ Closing current section');
-            section.classList.remove('expanded');
-          } else {
-            console.log('✅ Opening section');
-            section.classList.add('expanded');
-          }
-          
-          setTimeout(() => {
-            const scrollAfter = window.pageYOffset || document.documentElement.scrollTop;
-            console.log('📍 Scroll after action:', scrollAfter);
-            console.log('📊 Scroll changed by:', scrollAfter - scrollBefore);
-          }, 100);
-        }
-      });
-    });
-
-    // Robust close functionality with scroll lock
-    document.addEventListener('click', function(e) {
-      const contentElement = e.target.closest('.travel-section-content');
-      
-      if (contentElement) {
-        const rect = contentElement.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const clickY = e.clientY - rect.top;
-        
-        console.log('Click detected on content element');
-        console.log('Click position:', { clickX, clickY });
-        console.log('Element size:', { width: rect.width, height: rect.height });
-        console.log('Bottom-right area check:', { 
-          isInArea: clickX >= rect.width - 50 && clickY >= rect.height - 50,
-          minX: rect.width - 50,
-          minY: rect.height - 50 
-        });
-        
-        // Check if click is in bottom-right 50x50 area (where arrow is)
-        if (clickX >= rect.width - 50 && clickY >= rect.height - 50) {
-          console.log('🎯 ARROW CLICKED - Starting close process');
-          
-          // COMPLETE scroll prevention
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-          
-          // Get the section and its header position
-          const section = contentElement.closest('.travel-section');
-          const header = section.querySelector('h2');
-          const headerRect = header.getBoundingClientRect();
-          
-          // Calculate target scroll position (header position + current scroll)
-          const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-          const targetScrollTop = currentScrollTop + headerRect.top - 100; // 100px buffer above header
-          
-          console.log('📍 Current scroll position:', { scrollTop: currentScrollTop });
-          console.log('📍 Header position:', { top: headerRect.top, targetScrollTop });
-          
-          // Temporarily disable scrolling
-          const originalOverflow = document.body.style.overflow;
-          const originalPosition = document.body.style.position;
-          const originalTop = document.body.style.top;
-          
-          console.log('🔒 Locking scroll...');
-          document.body.style.overflow = 'hidden';
-          document.body.style.position = 'fixed';
-          document.body.style.top = -currentScrollTop + 'px';
-          document.body.style.width = '100%';
-          
-          // Close the section
-          if (section && section.classList.contains('expanded')) {
-            console.log('❌ Closing section...');
-            section.classList.remove('expanded');
-          }
-          
-          // Restore scroll behavior and scroll to header position
-          setTimeout(() => {
-            console.log('🔓 Restoring scroll...');
-            document.body.style.overflow = originalOverflow;
-            document.body.style.position = originalPosition;
-            document.body.style.top = originalTop;
-            document.body.style.width = '';
-            
-            console.log('📍 Scrolling to header position:', targetScrollTop);
-            window.scrollTo(0, Math.max(0, targetScrollTop));
-            
-            console.log('✅ Process complete');
-          }, 50);
-          
-          return false;
-        }
-      }
-    }, true);
   </script>
-  
+
   <!-- Include password protection script -->
   <script src="script.js"></script>
-  
+
   <!-- Include language switching script -->
   <script src="language.js"></script>
+
+  <!-- Travel section functionality -->
+  <script src="travel_simple_fix.js"></script>
 </html>
